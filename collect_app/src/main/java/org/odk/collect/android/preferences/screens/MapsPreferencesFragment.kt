@@ -17,6 +17,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -27,9 +28,12 @@ import org.odk.collect.android.preferences.CaptionedListPreference
 import org.odk.collect.android.preferences.dialogs.ReferenceLayerPreferenceDialog
 import org.odk.collect.android.preferences.screens.ReferenceLayerPreferenceUtils.populateReferenceLayerPref
 import org.odk.collect.androidshared.ui.PrefUtils
+import org.odk.collect.androidshared.ui.ToastUtils
 import org.odk.collect.androidshared.ui.multiclicksafe.MultiClickGuard.allowClick
+import org.odk.collect.androidshared.utils.Validator.isUrlValid
 import org.odk.collect.maps.MapConfigurator
 import org.odk.collect.maps.layers.ReferenceLayerRepository
+import org.odk.collect.settings.keys.ProjectKeys
 import org.odk.collect.settings.keys.ProjectKeys.CATEGORY_BASEMAP
 import org.odk.collect.settings.keys.ProjectKeys.KEY_BASEMAP_SOURCE
 import java.io.File
@@ -120,7 +124,20 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
                 true
             }
         }
+        val baseMapDownloadPreference = findPreference<EditTextPreference>(ProjectKeys.KEY_BASEMAP_DOWNLOAD)
+        baseMapDownloadPreference?.summary = baseMapDownloadPreference?.text
+        baseMapDownloadPreference!!.setOnPreferenceChangeListener { preference: Preference?, value: Any ->
+            val url = value.toString()
+            if (isUrlValid(url)) {
+                preference?.summary = value.toString()
+                baseMapDownloadPreference.summary = value.toString()
+            } else {
+                ToastUtils.showShortToast(requireContext(), R.string.url_error)
+            }
+            true
+        }
     }
+
 
     /** Updates the rest of the preference UI when the Basemap Source is changed.  */
     private fun onBasemapSourceChanged(cftor: MapConfigurator) {
