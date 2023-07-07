@@ -131,6 +131,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
             if (isUrlValid(url)) {
                 preference?.summary = value.toString()
                 baseMapDownloadPreference.summary = value.toString()
+
             } else {
                 ToastUtils.showShortToast(requireContext(), R.string.url_error)
             }
