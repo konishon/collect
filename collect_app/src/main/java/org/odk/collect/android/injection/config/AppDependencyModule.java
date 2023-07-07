@@ -58,7 +58,6 @@ import org.odk.collect.android.formmanagement.ServerFormDownloader;
 import org.odk.collect.android.formmanagement.ServerFormsDetailsFetcher;
 import org.odk.collect.android.geo.MapFragmentFactoryImpl;
 import org.odk.collect.android.geo.MapLayerSourceProvider;
-import org.odk.collect.android.geo.MbTilesHttpInterface;
 import org.odk.collect.android.instancemanagement.autosend.AutoSendSettingsProvider;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSendFetcher;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSender;
@@ -507,9 +506,8 @@ public class AppDependencyModule {
     }
 
     @Provides
-
-    public MapLayerSourceProvider providesMapLayerSourceProvider(MbTilesHttpInterface mbTilesHttpInterface) {
-        return new MapLayerSourceProvider(mbTilesHttpInterface);
+    public MapLayerSourceProvider providesMapLayerSourceProvider(SettingsProvider settingsProvider,OpenRosaHttpInterface mbTilesHttpInterface) {
+        return new MapLayerSourceProvider(settingsProvider,mbTilesHttpInterface);
     }
 
     @Provides
