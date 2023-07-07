@@ -62,6 +62,8 @@ import org.odk.collect.android.gdrive.GoogleAccountPicker;
 import org.odk.collect.android.gdrive.GoogleAccountsManager;
 import org.odk.collect.android.gdrive.GoogleApiProvider;
 import org.odk.collect.android.geo.MapFragmentFactoryImpl;
+import org.odk.collect.android.geo.MapLayerSourceProvider;
+import org.odk.collect.android.geo.MbTilesHttpInterface;
 import org.odk.collect.android.instancemanagement.autosend.AutoSendSettingsProvider;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSendFetcher;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSender;
@@ -510,6 +512,11 @@ public class AppDependencyModule {
     @Provides
     public FormSourceProvider providesFormSourceProvider(SettingsProvider settingsProvider, OpenRosaHttpInterface openRosaHttpInterface) {
         return new FormSourceProvider(settingsProvider, openRosaHttpInterface);
+    }
+
+    @Provides
+    public MapLayerSourceProvider providesMapLayerSourceProvider(MbTilesHttpInterface mbTilesHttpInterface) {
+        return new MapLayerSourceProvider(mbTilesHttpInterface);
     }
 
     @Provides

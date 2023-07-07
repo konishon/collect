@@ -50,6 +50,7 @@ import org.odk.collect.android.fragments.dialogs.SelectMinimalDialog;
 import org.odk.collect.android.gdrive.GoogleDriveActivity;
 import org.odk.collect.android.gdrive.GoogleSheetsUploaderActivity;
 import org.odk.collect.android.geo.GoogleMapFragment;
+import org.odk.collect.android.geo.MapLayerSourceProvider;
 import org.odk.collect.android.mainmenu.MainMenuActivity;
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
 import org.odk.collect.android.preferences.CaptionedListPreference;
@@ -308,6 +309,7 @@ public interface AppDependencyComponent {
     SyncStatusAppState syncStatusAppState();
 
     FormSourceProvider formSourceProvider();
+
 
     ExistingProjectMigrator existingProjectMigrator();
 
