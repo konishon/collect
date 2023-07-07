@@ -43,8 +43,15 @@ import org.odk.collect.android.fragments.BarCodeScannerFragment;
 import org.odk.collect.android.fragments.SavedFormListFragment;
 import org.odk.collect.android.fragments.dialogs.FormsDownloadResultDialog;
 import org.odk.collect.android.fragments.dialogs.SelectMinimalDialog;
+
 import org.odk.collect.android.instancemanagement.send.InstanceUploaderActivity;
 import org.odk.collect.android.instancemanagement.send.InstanceUploaderListActivity;
+
+import org.odk.collect.android.gdrive.GoogleDriveActivity;
+import org.odk.collect.android.gdrive.GoogleSheetsUploaderActivity;
+import org.odk.collect.android.geo.GoogleMapFragment;
+import org.odk.collect.android.geo.MapLayerSourceProvider;
+
 import org.odk.collect.android.mainmenu.MainMenuActivity;
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
 import org.odk.collect.android.preferences.CaptionedListPreference;
@@ -294,6 +301,7 @@ public interface AppDependencyComponent {
     InstancesRepositoryProvider instancesRepositoryProvider();
 
     FormSourceProvider formSourceProvider();
+
 
     ExistingProjectMigrator existingProjectMigrator();
 
