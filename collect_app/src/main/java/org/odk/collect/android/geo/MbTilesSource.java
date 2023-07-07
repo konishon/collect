@@ -1,7 +1,7 @@
 package org.odk.collect.android.geo;
 
 import org.jetbrains.annotations.NotNull;
-import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
+import org.odk.collect.android.openrosa.OpenRosaResponseParser;
 import org.odk.collect.android.utilities.MbTilesFetchResult;
 import org.odk.collect.android.utilities.WebCredentialsUtils;
 
@@ -18,7 +18,7 @@ public class MbTilesSource implements MapLayerSource {
 
     private String serverURL;
 
-    public MbTilesSource(String serverURL, OpenRosaHttpInterface mbTilesHttpInterface, WebCredentialsUtils webCredentialsUtils) {
+    public MbTilesSource(String serverURL, MbTilesHttpInterface mbTilesHttpInterface, WebCredentialsUtils webCredentialsUtils) {
         this.webCredentialsUtils = webCredentialsUtils;
         this.serverURL = serverURL;
         this.mbtilesFetcher = new MbtilesFetcher(mbTilesHttpInterface, this.webCredentialsUtils);
@@ -26,9 +26,8 @@ public class MbTilesSource implements MapLayerSource {
 
 
     @Override
-    public @NotNull String fetch() throws MapLayerSourceException {
-        MbTilesFetchResult result = mapException(() -> mbtilesFetcher.getMbtiles(serverURL));
-
+    public @NotNull String fetchZip(String url) throws MapLayerSourceException {
+        MbTilesFetchResult result = mapException(() -> mbtilesFetcher.getMbtiles(url));
         if (result.errorMessage == null) {
             throw new MapLayerSourceException.ServerError(result.responseCode, serverURL);
         } else {
