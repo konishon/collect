@@ -52,6 +52,7 @@ import org.odk.collect.android.gdrive.GoogleSheetsUploaderActivity;
 import org.odk.collect.android.geo.GoogleMapFragment;
 import org.odk.collect.android.geo.MapLayerSourceProvider;
 
+import org.odk.collect.android.geo.MbTilesHttpInterface;
 import org.odk.collect.android.mainmenu.MainMenuActivity;
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
 import org.odk.collect.android.preferences.CaptionedListPreference;
@@ -281,6 +282,7 @@ public interface AppDependencyComponent {
     void inject(DownloadFormListTask downloadFormListTask);
 
     OpenRosaHttpInterface openRosaHttpInterface();
+
 
     ReferenceManager referenceManager();
 

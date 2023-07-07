@@ -23,6 +23,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import org.odk.collect.android.R
 import org.odk.collect.android.geo.MapConfiguratorProvider
+import org.odk.collect.android.geo.MapLayerSourceProvider
 import org.odk.collect.android.injection.DaggerUtils
 import org.odk.collect.android.preferences.CaptionedListPreference
 import org.odk.collect.android.preferences.dialogs.ReferenceLayerPreferenceDialog
@@ -48,6 +49,9 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
 
     @Inject
     lateinit var referenceLayerRepository: ReferenceLayerRepository
+
+    @Inject
+    lateinit var mapLayerSourceProvider: MapLayerSourceProvider
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
         if (allowClick(javaClass.name)) {
@@ -131,6 +135,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
             if (isUrlValid(url)) {
                 preference?.summary = value.toString()
                 baseMapDownloadPreference.summary = value.toString()
+                mapLayerSourceProvider.get(serverURL = value.toString())?.fetch()
 
             } else {
                 ToastUtils.showShortToast(requireContext(), R.string.url_error)
