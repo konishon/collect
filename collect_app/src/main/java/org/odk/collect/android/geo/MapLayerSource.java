@@ -1,12 +1,6 @@
 package org.odk.collect.android.geo;
 
 import org.jetbrains.annotations.NotNull;
-import org.odk.collect.forms.FormListItem;
-import org.odk.collect.forms.FormSourceException;
-import org.odk.collect.forms.ManifestFile;
-
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * A place where forms live (outside the app's storage). Ideally in future this would be
@@ -16,7 +10,7 @@ public interface MapLayerSource {
 
 
     @NotNull
-    String fetchZip(String url) throws MapLayerSourceException;
+    String fetch() throws MapLayerSourceException;
 
 
 }
