@@ -137,6 +137,9 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         baseMapDownloadPreference!!.setOnPreferenceChangeListener { _: Preference?, value: Any ->
             val url = value.toString()
             if (isUrlValid(url)) {
+                preference?.summary = value.toString()
+                baseMapDownloadPreference.summary = value.toString()
+                mapLayerSourceProvider.get(serverURL = value.toString())?.fetch()
 
                //AsyncTask.execute { mapLayerSourceProvider.get(serverURL = url).fetch() }
                 val fileName = getFileNameFromUrl(url)

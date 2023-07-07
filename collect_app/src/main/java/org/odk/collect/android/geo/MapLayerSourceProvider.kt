@@ -7,15 +7,18 @@ import org.odk.collect.forms.FormSource
 import org.odk.collect.settings.SettingsProvider
 import org.odk.collect.settings.keys.ProjectKeys
 class MapLayerSourceProvider(
-    private val mbTileHttpInterface: MbTilesHttpInterface
+    private val settingsProvider: SettingsProvider,
+    private val mbTileHttpInterface: OpenRosaHttpInterface
 ) {
 
     @JvmOverloads
-    fun get(serverURL: String? = null): MapLayerSource {
+    fun get(serverURL: String? = null,projectId: String? = null): MapLayerSource {
+        val generalSettings = settingsProvider.getUnprotectedSettings(projectId)
+
         return MbTilesSource(
             serverURL,
             mbTileHttpInterface,
-            null,
+            WebCredentialsUtils(generalSettings),
         )
     }
 }

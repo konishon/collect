@@ -1,10 +1,16 @@
 package org.odk.collect.android.geo;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.odk.collect.android.openrosa.HttpGetResult;
+<<<<<<< HEAD
 
+=======
+import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
+>>>>>>> e8f8a73d5b (feat: configured file download)
 import org.odk.collect.android.utilities.MbTilesFetchResult;
 import org.odk.collect.android.utilities.WebCredentialsUtils;
 
@@ -19,12 +25,17 @@ import java.net.URL;
 import timber.log.Timber;
 
 public class MbtilesFetcher {
+<<<<<<< HEAD
     private static final String HTTP_CONTENT_TYPE_TEXT_ZIP = "application/x-sqlite3";
+=======
 
-    private final MbTilesHttpInterface httpInterface;
+    private static final String HTTP_CONTENT_TYPE_TEXT_ZIP = "application/octet-stream";
+>>>>>>> e8f8a73d5b (feat: configured file download)
+
+    private final OpenRosaHttpInterface httpInterface;
     private final WebCredentialsUtils webCredentialsUtils;
 
-    public MbtilesFetcher(MbTilesHttpInterface httpInterface, WebCredentialsUtils webCredentialsUtils) {
+    public MbtilesFetcher(OpenRosaHttpInterface httpInterface, WebCredentialsUtils webCredentialsUtils) {
         this.httpInterface = httpInterface;
         this.webCredentialsUtils = webCredentialsUtils;
     }
@@ -49,6 +60,7 @@ public class MbtilesFetcher {
                  file = "";
             }
         } catch (Exception e) {
+            Timber.i(e);
             throw e;
         }
 
@@ -58,6 +70,7 @@ public class MbtilesFetcher {
     @NonNull
     private HttpGetResult fetch(@NonNull String downloadUrl, @Nullable final String contentType) throws Exception {
         URI uri;
+
         try {
             // assume the downloadUrl is escaped properly
             URL url = new URL(downloadUrl);
@@ -71,6 +84,11 @@ public class MbtilesFetcher {
             Timber.e(new Error("Invalid server URL (no hostname): " + downloadUrl));
             throw new Exception("Invalid server URL (no hostname): " + downloadUrl);
         }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> e8f8a73d5b (feat: configured file download)
         return httpInterface.executeGetRequest(uri, contentType, webCredentialsUtils.getCredentials(uri));
     }
 }
