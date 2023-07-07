@@ -177,6 +177,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         return fileName
     }
 
+
     /** Updates the rest of the preference UI when the Basemap Source is changed.  */
     private fun onBasemapSourceChanged(cftor: MapConfigurator) {
         // Set up the preferences in the "Basemap" section.
