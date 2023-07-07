@@ -57,6 +57,10 @@ import org.odk.collect.android.formmanagement.ServerFormDownloader;
 import org.odk.collect.android.formmanagement.ServerFormsDetailsFetcher;
 import org.odk.collect.android.geo.MapFragmentFactoryImpl;
 import org.odk.collect.android.geo.MapLayerSourceProvider;
+<<<<<<< HEAD
+=======
+import org.odk.collect.android.geo.MbTilesHttpInterface;
+>>>>>>> 02edb53762 (feat: adds mbtiles source)
 import org.odk.collect.android.instancemanagement.autosend.AutoSendSettingsProvider;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSendFetcher;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSender;
