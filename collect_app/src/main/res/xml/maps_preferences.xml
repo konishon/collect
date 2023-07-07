@@ -20,5 +20,12 @@
             android:negativeButtonText="@string/cancel"
             android:positiveButtonText="@string/ok"
             app:iconSpaceReserved="false" />
+
+        <EditTextPreference
+            android:dialogTitle="@string/change_server_url"
+            android:inputType="textNoSuggestions"
+            android:key="map_layer_url"
+            android:title="@string/server_url"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 </PreferenceScreen>
