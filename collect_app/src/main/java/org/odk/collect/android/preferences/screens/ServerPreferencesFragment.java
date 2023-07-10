@@ -24,6 +24,7 @@ import static org.odk.collect.settings.keys.ProjectKeys.KEY_SELECTED_GOOGLE_ACCO
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
@@ -196,6 +197,7 @@ public class ServerPreferencesFragment extends BaseProjectPreferencesFragment im
                     } else {
                         ToastUtils.showShortToast(requireContext(), R.string.url_error);
                         return false;
+
                     }
                     break;
 
