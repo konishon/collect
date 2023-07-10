@@ -91,6 +91,7 @@ public class ServerPreferencesFragment extends BaseProjectPreferencesFragment {
                     } else {
                         ToastUtils.showShortToast(requireContext(), org.odk.collect.strings.R.string.url_error);
                         return false;
+
                     }
                     break;
 
