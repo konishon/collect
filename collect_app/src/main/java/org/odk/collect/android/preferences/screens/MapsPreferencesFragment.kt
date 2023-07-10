@@ -42,6 +42,7 @@ import java.io.File
 import java.net.URL
 import javax.inject.Inject
 
+
 class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
 
     private lateinit var basemapSourcePref: ListPreference
@@ -78,7 +79,9 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         initBasemapSourcePref()
         initReferenceLayerPref()
         if (autoShowReferenceLayerDialog) {
-            populateReferenceLayerPref(requireContext(), referenceLayerRepository, referenceLayerPref!!)
+            populateReferenceLayerPref(
+                requireContext(), referenceLayerRepository, referenceLayerPref!!
+            )
             /** Opens the dialog programmatically, rather than by a click from the user.  */
             onDisplayPreferenceDialog(
                 preferenceManager.findPreference("reference_layer")!!
@@ -137,9 +140,6 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         baseMapDownloadPreference!!.setOnPreferenceChangeListener { _: Preference?, value: Any ->
             val url = value.toString()
             if (isUrlValid(url)) {
-                preference?.summary = value.toString()
-                baseMapDownloadPreference.summary = value.toString()
-                mapLayerSourceProvider.get(serverURL = value.toString())?.fetch()
 
                //AsyncTask.execute { mapLayerSourceProvider.get(serverURL = url).fetch() }
                 val fileName = getFileNameFromUrl(url)
@@ -163,7 +163,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
                 fileDownloader.execute(url, fileName);
                 true
             } else {
-                ToastUtils.showShortToast(requireContext(), org.odk.collect.strings.R.string.url_error)
+                ToastUtils.showShortToast(requireContext(), R.string.url_error)
                 false
             }
         }
@@ -180,7 +180,6 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         }
         return fileName
     }
-
 
     /** Updates the rest of the preference UI when the Basemap Source is changed.  */
     private fun onBasemapSourceChanged(cftor: MapConfigurator) {

@@ -1,39 +1,46 @@
 package org.odk.collect.android.geo;
 
+import android.net.TrafficStats;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.apache.commons.io.IOUtils;
+import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.openrosa.HttpGetResult;
-<<<<<<< HEAD
-
-=======
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
->>>>>>> e8f8a73d5b (feat: configured file download)
+import org.odk.collect.android.storage.StoragePathProvider;
+import org.odk.collect.android.storage.StorageSubdirectory;
 import org.odk.collect.android.utilities.MbTilesFetchResult;
 import org.odk.collect.android.utilities.WebCredentialsUtils;
+import org.odk.collect.androidshared.ui.ToastUtils;
+import org.odk.collect.maps.layers.ReferenceLayerRepository;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import javax.inject.Inject;
+
 import timber.log.Timber;
 
 public class MbtilesFetcher {
-<<<<<<< HEAD
-    private static final String HTTP_CONTENT_TYPE_TEXT_ZIP = "application/x-sqlite3";
-=======
-
     private static final String HTTP_CONTENT_TYPE_TEXT_ZIP = "application/octet-stream";
->>>>>>> e8f8a73d5b (feat: configured file download)
 
     private final OpenRosaHttpInterface httpInterface;
     private final WebCredentialsUtils webCredentialsUtils;
+
+
+    StoragePathProvider storagePathProvider;
 
     public MbtilesFetcher(OpenRosaHttpInterface httpInterface, WebCredentialsUtils webCredentialsUtils) {
         this.httpInterface = httpInterface;
@@ -41,30 +48,29 @@ public class MbtilesFetcher {
     }
 
     public MbTilesFetchResult getMbtiles(String urlString) throws Exception {
-
-
-        // parse response
         String file;
         HttpGetResult inputStreamResult;
 
         try {
             inputStreamResult = fetch(urlString, HTTP_CONTENT_TYPE_TEXT_ZIP);
             if (inputStreamResult.getStatusCode() != HttpURLConnection.HTTP_OK) {
-                String error = "getMbtilesZip failed while accessing "
+                String error = "getMbtiles failed while accessing "
                         + urlString + " with status code: " + inputStreamResult.getStatusCode();
-                return new MbTilesFetchResult(error, inputStreamResult.getStatusCode(),null);
+                return new MbTilesFetchResult(error, inputStreamResult.getStatusCode(), null);
             }
 
-            try (InputStream resultInputStream = inputStreamResult.getInputStream();
-                 InputStreamReader streamReader = new InputStreamReader(resultInputStream, "UTF-8")) {
-                 file = "";
-            }
+
         } catch (Exception e) {
             Timber.i(e);
             throw e;
         }
 
-        return new MbTilesFetchResult(file);
+        return new MbTilesFetchResult("file");
+    }
+
+    private String getFilenameFromUrl(String urlString) {
+        String filename = urlString.substring(urlString.lastIndexOf('/') + 1);
+        return filename;
     }
 
     @NonNull
@@ -84,11 +90,7 @@ public class MbtilesFetcher {
             Timber.e(new Error("Invalid server URL (no hostname): " + downloadUrl));
             throw new Exception("Invalid server URL (no hostname): " + downloadUrl);
         }
-<<<<<<< HEAD
-=======
 
-
->>>>>>> e8f8a73d5b (feat: configured file download)
         return httpInterface.executeGetRequest(uri, contentType, webCredentialsUtils.getCredentials(uri));
     }
 }
