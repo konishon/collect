@@ -1,6 +1,8 @@
 package org.odk.collect.android.preferences.dialogs;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,15 +10,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreferenceDialogFragmentCompat;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.preferences.CaptionedListPreference;
+import org.odk.collect.android.storage.StoragePathProvider;
+import org.odk.collect.android.storage.StorageSubdirectory;
 import org.odk.collect.android.utilities.ExternalWebPageHelper;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.androidshared.ui.ToastUtils;
+
+import java.io.File;
 
 public class ReferenceLayerPreferenceDialog extends ListPreferenceDialogFragmentCompat implements DialogInterface.OnClickListener {
 
+    private static final int PICKFILE_RESULT_CODE = 1;
     /**
      * Views should not be stored statically like this. The relationship on how the list is setup
      * here should be inverted - {@link ReferenceLayerPreferenceDialog} should be asking
@@ -40,7 +50,9 @@ public class ReferenceLayerPreferenceDialog extends ListPreferenceDialogFragment
         builder.setPositiveButton(null, null);
     }
 
-    /** Called just after the dialog's main view has been created. */
+    /**
+     * Called just after the dialog's main view has been created.
+     */
     @Override
     protected void onBindDialogView(View view) {
         CaptionedListPreference preference = null;
@@ -49,6 +61,7 @@ public class ReferenceLayerPreferenceDialog extends ListPreferenceDialogFragment
         }
 
         addHelpFooter(view);
+
 
         listView = view.findViewById(R.id.list);
 
@@ -83,6 +96,42 @@ public class ReferenceLayerPreferenceDialog extends ListPreferenceDialogFragment
         helpFooter.findViewById(R.id.help_button).setOnClickListener(v -> {
             new ExternalWebPageHelper().openWebPageInCustomTab(requireActivity(), Uri.parse("https://docs.getodk.org/collect-offline-maps/#transferring-offline-tilesets-to-devices"));
         });
+
+        helpFooter.findViewById(R.id.file_picker_button).setOnClickListener(v -> {
+            Intent intent = FileUtils.openFilePickerForMbtiles();
+            startActivityForResult(intent, PICKFILE_RESULT_CODE);
+        });
         layout.addView(helpFooter);
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICKFILE_RESULT_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            Uri selectedFileUri = data.getData();
+
+            if (selectedFileUri != null) {
+                String fileName = FileUtils.getFileNameFromContentUri(requireContext().getContentResolver(), selectedFileUri);
+
+                if (fileName != null && fileName.trim().toLowerCase().endsWith(".mbtiles")) {
+                    try {
+                        File destFile = new File(new StoragePathProvider().getOdkDirPath(StorageSubdirectory.LAYERS), fileName);
+                        FileUtils.saveLayersFromUri(selectedFileUri, destFile, requireContext());
+                        ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_was_sucessfull));
+                        if (getDialog() != null) {
+                            getDialog().dismiss();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_failed));
+                    }
+                } else {
+                    ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_bad_file_format));
+                }
+            }
+        }
+    }
+
 }

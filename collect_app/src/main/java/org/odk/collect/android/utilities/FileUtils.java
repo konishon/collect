@@ -17,9 +17,12 @@ package org.odk.collect.android.utilities;
 import static org.odk.collect.strings.localization.LocalizedApplicationKt.getLocalizedString;
 import static java.util.Arrays.asList;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
 import com.google.common.base.CharMatcher;
@@ -77,13 +80,19 @@ public final class FileUtils {
     public static final String AUTO_SEND = "autoSend";
     public static final String GEOMETRY_XPATH = "geometryXpath";
 
-    /** Suffix for the form media directory. */
+    /**
+     * Suffix for the form media directory.
+     */
     public static final String MEDIA_SUFFIX = "-media";
 
-    /** Filename of the last-saved instance data. */
+    /**
+     * Filename of the last-saved instance data.
+     */
     public static final String LAST_SAVED_FILENAME = "last-saved.xml";
 
-    /** Valid XML stub that can be parsed without error. */
+    /**
+     * Valid XML stub that can be parsed without error.
+     */
     public static final String STUB_XML = "<?xml version='1.0' ?><stub />";
 
     private FileUtils() {
@@ -110,6 +119,16 @@ public final class FileUtils {
         File dir = new File(path);
         return dir.exists() || dir.mkdirs();
     }
+
+    public static void saveLayersFromUri(Uri uri, File destFile, Context context){
+        try (InputStream fileInputStream = context.getContentResolver().openInputStream(uri);
+             OutputStream fileOutputStream = new FileOutputStream(destFile)) {
+            IOUtils.copy(fileInputStream, fileOutputStream);
+        } catch (IOException e) {
+            Timber.e(e);
+        }
+    }
+
 
     public static String copyFile(File sourceFile, File destFile) {
         if (sourceFile.exists()) {
@@ -161,6 +180,30 @@ public final class FileUtils {
         }
     }
 
+    public static Intent openFilePickerForMbtiles() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        //intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "application/x-sqlite3" });
+        return intent;
+    }
+
+    public static String getFileNameFromContentUri(ContentResolver contentResolver, Uri contentUri) {
+        String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
+
+        try (Cursor cursor = contentResolver.query(contentUri, projection, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
+                return cursor.getString(columnIndex);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;  // File name not found
+    }
+
+
     /**
      * Given a form definition file, return a map containing form metadata. The form ID is required
      * by the specification and will always be included. Title and version are optionally included.
@@ -199,11 +242,11 @@ public final class FileUtils {
     /**
      * Returns an XPath path representing the first geopoint of this form definition or null if the
      * definition does not contain any field of type geopoint.
-     *
+     * <p>
      * The first geopoint is either of:
-     *      (1) the first geopoint in the body that is not in a repeat
-     *      (2) if the form has a setgeopoint action, the first geopoint in the instance that occurs
-     *          before (1) or (1) if there is no geopoint defined before it in the instance.
+     * (1) the first geopoint in the body that is not in a repeat
+     * (2) if the form has a setgeopoint action, the first geopoint in the instance that occurs
+     * before (1) or (1) if there is no geopoint defined before it in the instance.
      */
     private static String getOverallFirstGeoPoint(FormDef formDef) {
         TreeReference firstTopLevelBodyGeoPoint = getFirstToplevelBodyGeoPoint(formDef);
@@ -401,7 +444,9 @@ public final class FileUtils {
         }
     }
 
-    /** Sorts file paths as if sorting the path components and extensions lexicographically. */
+    /**
+     * Sorts file paths as if sorting the path components and extensions lexicographically.
+     */
     public static int comparePaths(String a, String b) {
         // Regular string compareTo() is incorrect, because it will sort "/" and "."
         // after other punctuation (e.g. "foo/bar" will sort AFTER "foo-2/bar" and
