@@ -62,7 +62,6 @@ public class ReferenceLayerPreferenceDialog extends ListPreferenceDialogFragment
 
         addHelpFooter(view);
 
-
         listView = view.findViewById(R.id.list);
 
         if (preference != null) {
@@ -108,29 +107,32 @@ public class ReferenceLayerPreferenceDialog extends ListPreferenceDialogFragment
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICKFILE_RESULT_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            Uri selectedFileUri = data.getData();
+        if (requestCode != PICKFILE_RESULT_CODE || resultCode != Activity.RESULT_OK || data == null) {
+            return;
+        }
 
-            if (selectedFileUri != null) {
-                String fileName = FileUtils.getFileNameFromContentUri(requireContext().getContentResolver(), selectedFileUri);
+        Uri selectedFileUri = data.getData();
+        if (selectedFileUri == null) {
+            return;
+        }
 
-                if (fileName != null && fileName.trim().toLowerCase().endsWith(".mbtiles")) {
-                    try {
-                        File destFile = new File(new StoragePathProvider().getOdkDirPath(StorageSubdirectory.LAYERS), fileName);
-                        FileUtils.saveLayersFromUri(selectedFileUri, destFile, requireContext());
-                        ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_was_sucessfull));
-                        if (getDialog() != null) {
-                            getDialog().dismiss();
-                        }
+        String fileName = FileUtils.getFileNameFromContentUri(requireContext().getContentResolver(), selectedFileUri);
+        if (fileName == null || !fileName.trim().toLowerCase().endsWith(".mbtiles")) {
+            // Show bad file format toast
+            ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_bad_file_format));
+            return;
+        }
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_failed));
-                    }
-                } else {
-                    ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_bad_file_format));
-                }
+        try {
+            File destFile = new File(new StoragePathProvider().getOdkDirPath(StorageSubdirectory.LAYERS), fileName);
+            FileUtils.saveLayersFromUri(selectedFileUri, destFile, requireContext());
+            ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_was_successful));
+            if (getDialog() != null) {
+                getDialog().dismiss();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_failed));
         }
     }
 

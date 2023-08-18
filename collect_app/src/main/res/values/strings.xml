@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="mb_tiles_import_was_sucessfull">Import successful!</string>
-    <string name="mb_tiles_import_failed">An error occurred during import. Please try again.</string>
-    <string name="mb_tiles_import_bad_file_format">Import failed. Invalid file format.</string>
-</resources>
