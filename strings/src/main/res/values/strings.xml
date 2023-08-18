@@ -603,7 +603,7 @@
     <string name="get_help_with_reference_layers">Get help with Reference Layers</string>
 
     <!-- Toast text shown MB tiles import was successful -->
-    <string name="mb_tiles_import_was_successful">Import successfull</string>
+    <string name="mb_tiles_import_was_successful">Import successful. You can select the layer from the layer switcher.</string>
 
     <!-- Toast text shown MB tiles import failed -->
     <string name="mb_tiles_import_failed">An error occurred during import. Please try again.</string>

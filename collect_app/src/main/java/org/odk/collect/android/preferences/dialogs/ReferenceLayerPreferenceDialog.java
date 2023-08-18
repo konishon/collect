@@ -126,7 +126,7 @@ public class ReferenceLayerPreferenceDialog extends ListPreferenceDialogFragment
         try {
             File destFile = new File(new StoragePathProvider().getOdkDirPath(StorageSubdirectory.LAYERS), fileName);
             FileUtils.saveLayersFromUri(selectedFileUri, destFile, requireContext());
-            ToastUtils.showShortToast(requireContext(), getString(R.string.mb_tiles_import_was_successful));
+            ToastUtils.showLongToast(requireContext(), getString(R.string.mb_tiles_import_was_successful));
             if (getDialog() != null) {
                 getDialog().dismiss();
             }
