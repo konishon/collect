@@ -1,12 +1,12 @@
 package org.odk.collect.android.geo;
 
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
 import org.odk.collect.android.storage.StoragePathProvider;
 import org.odk.collect.android.storage.StorageSubdirectory;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -17,11 +17,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class FileDownloader extends AsyncTask<String, Void, Boolean> {
-
-    private static final String FOLDER_NAME = "layers";
-
-
-
     private final FileDownloadListener listener;
 
     public interface FileDownloadListener {
@@ -80,7 +75,7 @@ public class FileDownloader extends AsyncTask<String, Void, Boolean> {
 
             return true; // File downloaded successfully
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerFactory.getLogger(FileDownloader.class).error("MBTiles layer downloading error", e);
             return false; // Failed to download file
         }
 

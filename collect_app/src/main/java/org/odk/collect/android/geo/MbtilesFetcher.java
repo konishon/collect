@@ -1,35 +1,18 @@
 package org.odk.collect.android.geo;
 
-import android.net.TrafficStats;
-import android.os.AsyncTask;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.apache.commons.io.IOUtils;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.openrosa.HttpGetResult;
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
-import org.odk.collect.android.storage.StoragePathProvider;
-import org.odk.collect.android.storage.StorageSubdirectory;
 import org.odk.collect.android.utilities.MbTilesFetchResult;
 import org.odk.collect.android.utilities.WebCredentialsUtils;
-import org.odk.collect.androidshared.ui.ToastUtils;
-import org.odk.collect.maps.layers.ReferenceLayerRepository;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import javax.inject.Inject;
 
 import timber.log.Timber;
 
@@ -41,7 +24,7 @@ public class MbtilesFetcher {
     private final WebCredentialsUtils webCredentialsUtils;
 
 
-    StoragePathProvider storagePathProvider;
+//    StoragePathProvider storagePathProvider;
 
     public MbtilesFetcher(OpenRosaHttpInterface httpInterface, WebCredentialsUtils webCredentialsUtils) {
         this.httpInterface = httpInterface;
@@ -49,7 +32,6 @@ public class MbtilesFetcher {
     }
 
     public MbTilesFetchResult getMbtiles(String urlString) throws Exception {
-        String file;
         HttpGetResult inputStreamResult;
 
         try {
@@ -67,11 +49,6 @@ public class MbtilesFetcher {
         }
 
         return new MbTilesFetchResult("file");
-    }
-
-    private String getFilenameFromUrl(String urlString) {
-        String filename = urlString.substring(urlString.lastIndexOf('/') + 1);
-        return filename;
     }
 
     @NonNull
