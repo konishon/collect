@@ -21,13 +21,8 @@ import androidx.annotation.Nullable;
 
 import org.odk.collect.android.openrosa.HttpCredentialsInterface;
 import org.odk.collect.android.openrosa.HttpGetResult;
-import org.odk.collect.android.openrosa.HttpHeadResult;
-import org.odk.collect.android.openrosa.HttpPostResult;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 
 public interface MbTilesHttpInterface {
 
