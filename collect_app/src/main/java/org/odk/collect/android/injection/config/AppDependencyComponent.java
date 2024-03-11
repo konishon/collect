@@ -24,6 +24,8 @@ import org.odk.collect.android.backgroundwork.SyncFormsTaskSpec;
 import org.odk.collect.android.configure.qr.QRCodeScannerFragment;
 import org.odk.collect.android.configure.qr.QRCodeTabsActivity;
 import org.odk.collect.android.configure.qr.ShowQRCodeFragment;
+import org.odk.collect.android.instancemanagement.send.InstanceUploaderActivity;
+import org.odk.collect.android.instancemanagement.send.InstanceUploaderListActivity;
 import org.odk.collect.draw.DrawActivity;
 import org.odk.collect.android.entities.EntitiesRepositoryProvider;
 import org.odk.collect.android.external.AndroidShortcutsActivity;
