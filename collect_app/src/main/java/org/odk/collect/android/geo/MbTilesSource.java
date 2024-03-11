@@ -2,7 +2,6 @@ package org.odk.collect.android.geo;
 
 import org.jetbrains.annotations.NotNull;
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
-import org.odk.collect.android.openrosa.OpenRosaResponseParser;
 import org.odk.collect.android.utilities.MbTilesFetchResult;
 import org.odk.collect.android.utilities.WebCredentialsUtils;
 
