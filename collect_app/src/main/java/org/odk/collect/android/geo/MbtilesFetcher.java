@@ -67,7 +67,6 @@ public class MbtilesFetcher {
             Timber.e(new Error("Invalid server URL (no hostname): " + downloadUrl));
             throw new Exception("Invalid server URL (no hostname): " + downloadUrl);
         }
-
         return httpInterface.executeGetRequest(uri, contentType, webCredentialsUtils.getCredentials(uri));
     }
 }
