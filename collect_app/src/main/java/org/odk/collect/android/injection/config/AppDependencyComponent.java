@@ -176,7 +176,7 @@ public interface AppDependencyComponent {
 
     void inject(FormMapActivity formMapActivity);
 
-    void inject(GoogleMapFragment mapFragment);
+//    void inject(GoogleMapFragment mapFragment);
 
     void inject(MainMenuActivity mainMenuActivity);
 

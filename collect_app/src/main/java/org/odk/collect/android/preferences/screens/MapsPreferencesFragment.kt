@@ -159,7 +159,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
                 fileDownloader.execute(url, fileName);
                 true
             } else {
-                ToastUtils.showShortToast(requireContext(), R.string.url_error)
+                ToastUtils.showShortToast(requireContext(), org.odk.collect.strings.R.string.url_error)
                 false
             }
         }
