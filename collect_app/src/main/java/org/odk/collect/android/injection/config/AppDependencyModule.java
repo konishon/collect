@@ -511,8 +511,8 @@ public class AppDependencyModule {
     }
 
     @Provides
-    public FormsUpdater providesFormsUpdater(Context context, Notifier notifier, SyncStatusAppState syncStatusAppState, ProjectDependencyProviderFactory projectDependencyProviderFactory) {
-        return new FormsUpdater(context, notifier, syncStatusAppState, projectDependencyProviderFactory, System::currentTimeMillis);
+    public FormsDataService providesFormsUpdater(Application application, Notifier notifier, ProjectDependencyProviderFactory projectDependencyProviderFactory) {
+        return new FormsDataService(getState(application), notifier, projectDependencyProviderFactory, System::currentTimeMillis);
     }
 
     @Provides
