@@ -42,7 +42,6 @@ import java.io.File
 import java.net.URL
 import javax.inject.Inject
 
-
 class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
 
     private lateinit var basemapSourcePref: ListPreference
@@ -79,9 +78,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         initBasemapSourcePref()
         initReferenceLayerPref()
         if (autoShowReferenceLayerDialog) {
-            populateReferenceLayerPref(
-                requireContext(), referenceLayerRepository, referenceLayerPref!!
-            )
+            populateReferenceLayerPref(requireContext(), referenceLayerRepository, referenceLayerPref!!)
             /** Opens the dialog programmatically, rather than by a click from the user.  */
             onDisplayPreferenceDialog(
                 preferenceManager.findPreference("reference_layer")!!
@@ -139,7 +136,6 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         baseMapDownloadPreference!!.setOnPreferenceChangeListener { _: Preference?, value: Any ->
             val url = value.toString()
             if (isUrlValid(url)) {
-
                //AsyncTask.execute { mapLayerSourceProvider.get(serverURL = url).fetch() }
                 val fileName = getFileNameFromUrl(url)
                 baseMapDownloadPreference.summary = "Downloading layers.."
