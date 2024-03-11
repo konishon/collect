@@ -46,9 +46,6 @@ import org.odk.collect.android.fragments.BarCodeScannerFragment;
 import org.odk.collect.android.fragments.SavedFormListFragment;
 import org.odk.collect.android.fragments.dialogs.FormsDownloadResultDialog;
 import org.odk.collect.android.fragments.dialogs.SelectMinimalDialog;
-//import org.odk.collect.android.gdrive.GoogleDriveActivity;
-//import org.odk.collect.android.gdrive.GoogleSheetsUploaderActivity;
-//import org.odk.collect.android.geo.GoogleMapFragment;
 import org.odk.collect.android.mainmenu.MainMenuActivity;
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
 import org.odk.collect.android.preferences.CaptionedListPreference;
@@ -89,6 +86,7 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.items.SelectOneFromMapDialogFragment;
 import org.odk.collect.androidshared.network.NetworkStateProvider;
 import org.odk.collect.async.Scheduler;
+import org.odk.collect.googlemaps.GoogleMapFragment;
 import org.odk.collect.location.LocationClient;
 import org.odk.collect.maps.MapFragmentFactory;
 import org.odk.collect.maps.layers.ReferenceLayerRepository;
@@ -173,7 +171,7 @@ public interface AppDependencyComponent {
 
     void inject(FormMapActivity formMapActivity);
 
-//    void inject(GoogleMapFragment mapFragment);
+    void inject(GoogleMapFragment mapFragment);
 
     void inject(MainMenuActivity mainMenuActivity);
 
