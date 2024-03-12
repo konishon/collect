@@ -19,7 +19,6 @@ import static android.content.DialogInterface.BUTTON_POSITIVE;
 import static android.view.animation.AnimationUtils.loadAnimation;
 import static org.javarosa.form.api.FormEntryController.EVENT_PROMPT_NEW_REPEAT;
 import static org.odk.collect.android.analytics.AnalyticsEvents.OPEN_MAP_KIT_RESPONSE;
-import static org.odk.collect.android.analytics.AnalyticsEvents.SAVE_INCOMPLETE;
 import static org.odk.collect.android.formentry.FormIndexAnimationHandler.Direction.BACKWARDS;
 import static org.odk.collect.android.formentry.FormIndexAnimationHandler.Direction.FORWARDS;
 import static org.odk.collect.android.utilities.AnimationUtils.areAnimationsEnabled;
@@ -30,6 +29,7 @@ import static org.odk.collect.androidshared.ui.ToastUtils.showLongToast;
 import static org.odk.collect.androidshared.ui.ToastUtils.showShortToast;
 import static org.odk.collect.settings.keys.ProjectKeys.KEY_NAVIGATION;
 import static org.odk.collect.settings.keys.ProtectedProjectKeys.KEY_MOVING_BACKWARDS;
+import static org.odk.collect.strings.localization.LocalizedApplicationKt.getLocalizedString;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -45,7 +45,6 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -93,7 +92,6 @@ import org.odk.collect.android.backgroundwork.InstanceSubmitScheduler;
 import org.odk.collect.android.dao.helpers.InstancesDaoHelper;
 import org.odk.collect.android.entities.EntitiesRepositoryProvider;
 import org.odk.collect.android.exception.JavaRosaException;
-import org.odk.collect.android.external.FormsContract;
 import org.odk.collect.android.external.InstancesContract;
 import org.odk.collect.android.formentry.BackgroundAudioPermissionDialogFragment;
 import org.odk.collect.android.formentry.BackgroundAudioViewModel;
@@ -101,7 +99,7 @@ import org.odk.collect.android.formentry.FormAnimation;
 import org.odk.collect.android.formentry.FormAnimationType;
 import org.odk.collect.android.formentry.FormEndView;
 import org.odk.collect.android.formentry.FormEndViewModel;
-import org.odk.collect.android.formentry.FormEntryMenuDelegate;
+import org.odk.collect.android.formentry.FormEntryMenuProvider;
 import org.odk.collect.android.formentry.FormEntryViewModel;
 import org.odk.collect.android.formentry.FormError;
 import org.odk.collect.android.formentry.FormIndexAnimationHandler;
@@ -109,12 +107,12 @@ import org.odk.collect.android.formentry.FormIndexAnimationHandler.Direction;
 import org.odk.collect.android.formentry.FormLoadingDialogFragment;
 import org.odk.collect.android.formentry.FormSessionRepository;
 import org.odk.collect.android.formentry.ODKView;
+import org.odk.collect.android.formentry.PrinterWidgetViewModel;
 import org.odk.collect.android.formentry.QuitFormDialog;
 import org.odk.collect.android.formentry.RecordingHandler;
 import org.odk.collect.android.formentry.RecordingWarningDialogFragment;
 import org.odk.collect.android.formentry.SwipeHandler;
 import org.odk.collect.android.formentry.audit.AuditEvent;
-import org.odk.collect.android.formentry.audit.AuditUtils;
 import org.odk.collect.android.formentry.audit.ChangesReasonPromptDialogFragment;
 import org.odk.collect.android.formentry.audit.IdentifyUserPromptDialogFragment;
 import org.odk.collect.android.formentry.audit.IdentityPromptViewModel;
@@ -128,6 +126,8 @@ import org.odk.collect.android.formentry.saving.FormSaveViewModel;
 import org.odk.collect.android.formentry.saving.SaveAnswerFileErrorDialogFragment;
 import org.odk.collect.android.formentry.saving.SaveAnswerFileProgressDialogFragment;
 import org.odk.collect.android.formentry.saving.SaveFormProgressDialogFragment;
+import org.odk.collect.android.formhierarchy.FormHierarchyActivity;
+import org.odk.collect.android.formhierarchy.ViewOnlyFormHierarchyActivity;
 import org.odk.collect.android.fragments.MediaLoadingFragment;
 import org.odk.collect.android.fragments.dialogs.CustomDatePickerDialog;
 import org.odk.collect.android.fragments.dialogs.CustomTimePickerDialog;
@@ -149,7 +149,6 @@ import org.odk.collect.android.logic.ImmutableDisplayableQuestion;
 import org.odk.collect.android.mainmenu.MainMenuActivity;
 import org.odk.collect.android.projects.ProjectsDataService;
 import org.odk.collect.android.storage.StoragePathProvider;
-import org.odk.collect.android.storage.StorageSubdirectory;
 import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.tasks.SaveFormIndexTask;
 import org.odk.collect.android.tasks.SavePointTask;
@@ -160,7 +159,6 @@ import org.odk.collect.android.utilities.ExternalAppIntentProvider;
 import org.odk.collect.android.utilities.FormsRepositoryProvider;
 import org.odk.collect.android.utilities.InstancesRepositoryProvider;
 import org.odk.collect.android.utilities.MediaUtils;
-import org.odk.collect.androidshared.system.PlayServicesChecker;
 import org.odk.collect.android.utilities.ScreenContext;
 import org.odk.collect.android.utilities.SoftKeyboardController;
 import org.odk.collect.android.widgets.DateTimeWidget;
@@ -175,18 +173,17 @@ import org.odk.collect.android.widgets.utilities.InternalRecordingRequester;
 import org.odk.collect.android.widgets.utilities.ViewModelAudioPlayer;
 import org.odk.collect.android.widgets.utilities.WaitingForDataRegistry;
 import org.odk.collect.androidshared.system.IntentLauncher;
+import org.odk.collect.androidshared.system.PlayServicesChecker;
 import org.odk.collect.androidshared.system.ProcessRestoreDetector;
 import org.odk.collect.androidshared.ui.DialogFragmentUtils;
 import org.odk.collect.androidshared.ui.FragmentFactoryBuilder;
 import org.odk.collect.androidshared.ui.SnackbarUtils;
 import org.odk.collect.androidshared.ui.ToastUtils;
-import org.odk.collect.androidshared.ui.multiclicksafe.MultiClickGuard;
 import org.odk.collect.async.Scheduler;
 import org.odk.collect.audioclips.AudioClipViewModel;
 import org.odk.collect.audiorecorder.recording.AudioRecorder;
 import org.odk.collect.externalapp.ExternalAppUtils;
 import org.odk.collect.forms.Form;
-import org.odk.collect.forms.FormsRepository;
 import org.odk.collect.forms.instances.Instance;
 import org.odk.collect.location.LocationClient;
 import org.odk.collect.material.MaterialProgressDialogFragment;
@@ -194,6 +191,8 @@ import org.odk.collect.metadata.PropertyManager;
 import org.odk.collect.permissions.PermissionListener;
 import org.odk.collect.permissions.PermissionsChecker;
 import org.odk.collect.permissions.PermissionsProvider;
+import org.odk.collect.printer.HtmlPrinter;
+import org.odk.collect.qrcode.QRCodeCreatorImpl;
 import org.odk.collect.settings.SettingsProvider;
 import org.odk.collect.settings.keys.ProjectKeys;
 import org.odk.collect.strings.localization.LocalizedActivity;
@@ -240,16 +239,12 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
 
     private static final String TAG_MEDIA_LOADING_FRAGMENT = "media_loading_fragment";
 
-    // Identifies the gp of the form used to launch form entry
-    public static final String KEY_FORMPATH = "formpath";
-
     // Identifies whether this is a new form, or reloading a form after a screen
     // rotation (or similar)
     private static final String NEWFORM = "newform";
     // these are only processed if we shut down and are restoring after an
     // external intent fires
 
-    public static final String KEY_INSTANCEPATH = "instancepath";
     public static final String KEY_XPATH = "xpath";
     public static final String KEY_XPATH_WAITING_FOR_DATA = "xpathwaiting";
 
@@ -263,8 +258,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
 
     // Random ID
     private static final int DELETE_REPEAT = 654321;
-
-    private String formPath;
     private String saveName;
 
     private Animation inAnimation;
@@ -285,18 +278,17 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
     private ODKView odkView;
     private final ControllableLifecyleOwner odkViewLifecycle = new ControllableLifecyleOwner();
 
-    private String instancePath;
     private String startingXPath;
     private String waitingXPath;
     private boolean newForm = true;
 
     MediaLoadingFragment mediaLoadingFragment;
-    private FormEntryMenuDelegate menuDelegate;
     private FormIndexAnimationHandler formIndexAnimationHandler;
     private WaitingForDataRegistry waitingForDataRegistry;
     private InternalRecordingRequester internalRecordingRequester;
     private ExternalAppRecordingRequester externalAppRecordingRequester;
     private FormEntryViewModelFactory viewModelFactory;
+    private AudioClipViewModel audioClipViewModel;
 
     @Override
     public void allowSwiping(boolean doSwipe) {
@@ -310,7 +302,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
 
     @Inject
     FormsRepositoryProvider formsRepositoryProvider;
-    private FormsRepository formsRepository;
 
     @Inject
     PropertyManager propertyManager;
@@ -369,7 +360,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
 
     @Inject
     public InstancesRepositoryProvider instancesRepositoryProvider;
-
     private final LocationProvidersReceiver locationProvidersReceiver = new LocationProvidersReceiver();
 
     private SwipeHandler swipeHandler;
@@ -384,6 +374,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
     private IdentityPromptViewModel identityPromptViewModel;
     private FormSaveViewModel formSaveViewModel;
     private FormEntryViewModel formEntryViewModel;
+    private PrinterWidgetViewModel printerWidgetViewModel;
     private BackgroundAudioViewModel backgroundAudioViewModel;
     private FormEndViewModel formEndViewModel;
 
@@ -432,7 +423,10 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                 fusedLocatonClient,
                 permissionsProvider,
                 autoSendSettingsProvider,
-                instancesRepositoryProvider
+                formsRepositoryProvider,
+                instancesRepositoryProvider,
+                new QRCodeCreatorImpl(),
+                new HtmlPrinter()
         );
 
         this.getSupportFragmentManager().setFragmentFactory(new FragmentFactoryBuilder()
@@ -457,8 +451,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
 
         super.onCreate(savedInstanceState);
 
-        formsRepository = formsRepositoryProvider.get();
-
         setContentView(R.layout.form_entry);
         setupViewModels(viewModelFactory);
 
@@ -475,15 +467,28 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         initToolbar();
 
         formIndexAnimationHandler = new FormIndexAnimationHandler(this);
-        menuDelegate = new FormEntryMenuDelegate(
+        FormEntryMenuProvider menuProvider = new FormEntryMenuProvider(
                 this,
                 () -> getAnswers(),
                 formEntryViewModel,
                 audioRecorder,
                 backgroundLocationViewModel,
                 backgroundAudioViewModel,
-                settingsProvider
+                settingsProvider,
+                new FormEntryMenuProvider.FormEntryMenuClickListener() {
+                    @Override
+                    public void changeLanguage() {
+                        createLanguageDialog();
+                    }
+
+                    @Override
+                    public void save() {
+                        saveForm(false, InstancesDaoHelper.isInstanceComplete(getFormController()), null, true);
+                    }
+                }
         );
+
+        addMenuProvider(menuProvider, this);
 
         nextButton = findViewById(R.id.form_forward_button);
         nextButton.setOnClickListener(v -> {
@@ -508,6 +513,12 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         loadForm();
 
         getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
+
+        MaterialProgressDialogFragment.showOn(this, printerWidgetViewModel.isLoading(), getSupportFragmentManager(), () -> {
+            MaterialProgressDialogFragment dialog = new MaterialProgressDialogFragment();
+            dialog.setMessage(getLocalizedString(this, org.odk.collect.strings.R.string.loading));
+            return dialog;
+        });
     }
 
     private void setupViewModels(FormEntryViewModelFactory formEntryViewModelFactory) {
@@ -539,6 +550,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         });
 
         formEntryViewModel = viewModelProvider.get(FormEntryViewModel.class);
+        printerWidgetViewModel = viewModelProvider.get(PrinterWidgetViewModel.class);
 
         formEntryViewModel.getCurrentIndex().observe(this, index -> {
             formIndexAnimationHandler.handle(index);
@@ -601,8 +613,13 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         RecordingHandler recordingHandler = new RecordingHandler(formSaveViewModel, this, audioRecorder, new AMRAppender(), new M4AAppender());
         audioRecorder.getCurrentSession().observe(this, session -> {
             if (session != null && session.getFile() != null) {
-                recordingHandler.handle(getFormController(), session, success -> {
-                    if (success) {
+                recordingHandler.handle(getFormController(), session, file -> {
+                    if (file != null) {
+                        if (session.getId() instanceof FormIndex) {
+                            waitingForDataRegistry.waitForData((FormIndex) session.getId());
+                            setWidgetData(file);
+                            session.getFile().delete();
+                        }
                         formSaveViewModel.resumeSave();
                     } else {
                         String path = session.getFile().getAbsolutePath();
@@ -612,27 +629,22 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                 });
             }
         });
+
+        AudioClipViewModel.Factory factory = new AudioClipViewModel.Factory(MediaPlayer::new, scheduler);
+        audioClipViewModel = new ViewModelProvider(this, factory).get(AudioClipViewModel.class);
+        audioClipViewModel.isLoading().observe(this, (isLoading) -> {
+            findViewById(R.id.loading_screen).setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
     }
 
-    private void formControllerAvailable(@NonNull FormController formController) {
-        Form form = formsRepository.getOneByPath(formPath);
-        String instancePath = formController.getInstanceFile().getAbsolutePath();
-        Instance instance = instancesRepositoryProvider.get().getOneByPath(instancePath);
+    private void formControllerAvailable(@NonNull FormController formController, @NonNull Form form, @Nullable Instance instance) {
         formSessionRepository.set(sessionId, formController, form, instance);
-
         AnalyticsUtils.setForm(formController);
-
         backgroundLocationViewModel.formFinishedLoading();
     }
 
     private void setupFields(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
-                formPath = savedInstanceState.getString(KEY_FORMPATH);
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCEPATH)) {
-                instancePath = savedInstanceState.getString(KEY_INSTANCEPATH);
-            }
             if (savedInstanceState.containsKey(KEY_XPATH)) {
                 startingXPath = savedInstanceState.getString(KEY_XPATH);
                 Timber.i("startingXPath is: %s", startingXPath);
@@ -677,14 +689,11 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                 FormController formController = getFormController();
 
                 if (formController != null) {
-                    formControllerAvailable(formController);
                     activityDisplayed();
-                    formEntryViewModel.refresh();
+                    formEntryViewModel.refreshSync();
                 } else {
                     Timber.w("Reloading form and restoring state.");
-                    formLoaderTask = new FormLoaderTask(instancePath, startingXPath, waitingXPath, formEntryControllerFactory, scheduler);
-                    showIfNotShowing(FormLoadingDialogFragment.class, getSupportFragmentManager());
-                    formLoaderTask.execute(formPath);
+                    loadFromIntent(getIntent());
                 }
 
                 return;
@@ -705,76 +714,10 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
             uriMimeType = getContentResolver().getType(uri);
         }
 
-        if (uriMimeType != null && uriMimeType.equals(InstancesContract.CONTENT_ITEM_TYPE)) {
-            Instance instance = new InstancesRepositoryProvider(Collect.getInstance()).get().get(ContentUriHelper.getIdFromUri(uri));
-
-            instancePath = instance.getInstanceFilePath();
-
-            List<Form> candidateForms = formsRepository.getAllByFormIdAndVersion(instance.getFormId(), instance.getFormVersion());
-
-            formPath = candidateForms.get(0).getFormFilePath();
-        } else if (uriMimeType != null && uriMimeType.equals(FormsContract.CONTENT_ITEM_TYPE)) {
-            Form form = formsRepositoryProvider.get().get(ContentUriHelper.getIdFromUri(uri));
-            formPath = form.getFormFilePath();
-
-            /**
-             * This is the fill-blank-form code path.See if there is a savepoint for this form
-             * that has never been explicitly saved by the user. If there is, open this savepoint(resume this filled-in form).
-             * Savepoints for forms that were explicitly saved will be recovered when that
-             * explicitly saved instance is edited via edit-saved-form.
-             */
-            instancePath = loadSavePoint();
-        }
-
-        formLoaderTask = new FormLoaderTask(instancePath, startingXPath, waitingXPath, formEntryControllerFactory, scheduler);
+        formLoaderTask = new FormLoaderTask(uri, uriMimeType, startingXPath, waitingXPath, formEntryControllerFactory, scheduler);
         formLoaderTask.setFormLoaderListener(this);
         showIfNotShowing(FormLoadingDialogFragment.class, getSupportFragmentManager());
-        formLoaderTask.execute(formPath);
-    }
-
-    private String loadSavePoint() {
-        final String filePrefix = formPath.substring(
-                formPath.lastIndexOf('/') + 1,
-                formPath.lastIndexOf('.'))
-                + "_";
-        final String fileSuffix = ".xml.save";
-        File cacheDir = new File(storagePathProvider.getOdkDirPath(StorageSubdirectory.CACHE));
-        File[] files = cacheDir.listFiles(pathname -> {
-            String name = pathname.getName();
-            return name.startsWith(filePrefix)
-                    && name.endsWith(fileSuffix);
-        });
-
-        if (files != null) {
-            /**
-             * See if any of these savepoints are for a filled-in form that has never
-             * been explicitly saved by the user.
-             */
-            for (File candidate : files) {
-                String instanceDirName = candidate.getName()
-                        .substring(
-                                0,
-                                candidate.getName().length()
-                                        - fileSuffix.length());
-                File instanceDir = new File(
-                        storagePathProvider.getOdkDirPath(StorageSubdirectory.INSTANCES) + File.separator
-                                + instanceDirName);
-                File instanceFile = new File(instanceDir,
-                        instanceDirName + ".xml");
-                if (instanceDir.exists()
-                        && instanceDir.isDirectory()
-                        && !instanceFile.exists()) {
-                    // yes! -- use this savepoint file
-                    return instanceFile
-                            .getAbsolutePath();
-                }
-            }
-
-        } else {
-            Timber.e(new Error("Couldn't access cache directory when looking for save points!"));
-        }
-
-        return null;
+        formLoaderTask.execute();
     }
 
 
@@ -818,12 +761,8 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
 
         outState.putString(KEY_SESSION_ID, sessionId);
 
-        outState.putString(KEY_FORMPATH, formPath);
         FormController formController = getFormController();
         if (formController != null) {
-            if (formController.getInstanceFile() != null) {
-                outState.putString(KEY_INSTANCEPATH, getAbsoluteInstancePath());
-            }
             outState.putString(KEY_XPATH,
                     formController.getXPath(formController.getFormIndex()));
             FormIndex waiting = formController.getIndexWaitingForData();
@@ -861,7 +800,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         // button or another question to jump to so we need to rebuild the view.
         if (requestCode == RequestCodes.HIERARCHY_ACTIVITY || requestCode == RequestCodes.CHANGE_SETTINGS) {
             activityDisplayed();
-            formEntryViewModel.refresh();
+            formEntryViewModel.refreshSync();
             return;
         }
 
@@ -1016,42 +955,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menuDelegate.onCreateOptionsMenu(getMenuInflater(), menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        menuDelegate.onPrepareOptionsMenu(menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (!MultiClickGuard.allowClick(getClass().getName())) {
-            return true;
-        }
-
-        if (menuDelegate.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        // These actions should move into the `FormEntryMenuDelegate`
-        if (item.getItemId() == R.id.menu_languages) {
-            createLanguageDialog();
-            return true;
-        } else if (item.getItemId() == R.id.menu_save) {
-            // don't exit
-            saveForm(false, InstancesDaoHelper.isInstanceComplete(getFormController()), null, true);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     // The method saves questions one by one in order to support calculations in field-list groups
     private void saveAnswersForFieldList(FormEntryPrompt[] mutableQuestionsBeforeSave, List<ImmutableDisplayableQuestion> immutableQuestionsBeforeSave) {
         FormController formController = getFormController();
@@ -1164,8 +1067,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         }
 
         switch (event) {
-            case FormEntryController.EVENT_BEGINNING_OF_FORM:
-                return createViewForFormBeginning(formController);
             case FormEntryController.EVENT_END_OF_FORM:
                 return createViewForFormEnd(formController);
             case FormEntryController.EVENT_QUESTION:
@@ -1173,8 +1074,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
             case FormEntryController.EVENT_REPEAT:
                 // should only be a group here if the event_group is a field-list
                 try {
-                    AuditUtils.logCurrentScreen(formController, formController.getAuditEventLogger(), System.currentTimeMillis());
-
                     FormEntryCaption[] groups = formController
                             .getGroupsForCurrentIndex();
                     FormEntryPrompt[] prompts = formController.getQuestionPrompts();
@@ -1227,13 +1126,12 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
     private ODKView createODKView(boolean advancingPage, FormEntryPrompt[] prompts, FormEntryCaption[] groups) {
         odkViewLifecycle.start();
 
-        AudioClipViewModel.Factory factory = new AudioClipViewModel.Factory(MediaPlayer::new, scheduler);
         ViewModelAudioPlayer viewModelAudioPlayer = new ViewModelAudioPlayer(
-                new ViewModelProvider(this, factory).get(AudioClipViewModel.class),
+                audioClipViewModel,
                 odkViewLifecycle
         );
 
-        return new ODKView(this, prompts, groups, advancingPage, formSaveViewModel, waitingForDataRegistry, viewModelAudioPlayer, audioRecorder, formEntryViewModel, internalRecordingRequester, externalAppRecordingRequester, audioHelperFactory.create(this));
+        return new ODKView(this, prompts, groups, advancingPage, formSaveViewModel, waitingForDataRegistry, viewModelAudioPlayer, audioRecorder, formEntryViewModel, printerWidgetViewModel, internalRecordingRequester, externalAppRecordingRequester, audioHelperFactory.create(this));
     }
 
     @Override
@@ -1252,26 +1150,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         if (odkView != null) {
             odkView = null;
         }
-    }
-
-    /**
-     * Steps to the next screen and creates a view for it. Always sets {@code advancingPage} to true
-     * to auto-play media.
-     */
-    private SwipeHandler.View createViewForFormBeginning(FormController formController) {
-        int event = FormEntryController.EVENT_BEGINNING_OF_FORM;
-        try {
-            event = formController.stepToNextScreenEvent();
-        } catch (JavaRosaException e) {
-            Timber.d(e);
-            if (e.getMessage().equals(e.getCause().getMessage())) {
-                createErrorDialog(new FormError.NonFatal(e.getMessage()));
-            } else {
-                createErrorDialog(new FormError.NonFatal(e.getMessage() + "\n\n" + e.getCause().getMessage()));
-            }
-        }
-
-        return createView(event, true);
     }
 
     /**
@@ -1523,8 +1401,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                     List<TreeElement> attrs = p.getBindAttributes();
                     for (int i = 0; i < attrs.size(); i++) {
                         if (!autoSaved && "saveIncomplete".equals(attrs.get(i).getName())) {
-                            Analytics.log(SAVE_INCOMPLETE, "form");
-
                             saveForm(false, false, null, false);
                             autoSaved = true;
                         }
@@ -1629,8 +1505,8 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
      * isntancs as complete. If updatedSaveName is non-null, the instances
      * content provider is updated with the new name
      */
-    private boolean saveForm(boolean exit, boolean complete, String updatedSaveName,
-                             boolean current) {
+    public boolean saveForm(boolean exit, boolean complete, String updatedSaveName,
+                            boolean current) {
         // save current answer
         if (current) {
             if (!formEntryViewModel.updateAnswersForScreen(getAnswers(), complete)) {
@@ -1774,7 +1650,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
      * Creates and displays a dialog allowing the user to set the language for
      * the form.
      */
-    private void createLanguageDialog() {
+    public void createLanguageDialog() {
         FormController formController = getFormController();
         final String[] languages = formController.getLanguages();
         int selected = -1;
@@ -1789,17 +1665,10 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         alertDialog = new MaterialAlertDialogBuilder(this)
                 .setSingleChoiceItems(languages, selected,
                         (dialog, whichButton) -> {
-                            Form form = formsRepository.getOneByPath(formPath);
-                            if (form != null) {
-                                formsRepository.save(new Form.Builder(form)
-                                        .language(languages[whichButton])
-                                        .build()
-                                );
-                            }
-
-                            getFormController().setLanguage(languages[whichButton]);
-                            dialog.dismiss();
+                            formEntryViewModel.changeLanguage(languages[whichButton]);
                             formEntryViewModel.updateAnswersForScreen(getAnswers(), false);
+
+                            dialog.dismiss();
                             onScreenRefresh();
                         })
                 .setTitle(getString(org.odk.collect.strings.R.string.change_language))
@@ -1894,7 +1763,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                 }
             }
         } else {
-            if (formController == null) {
+            if (formController == null && !identityPromptViewModel.requiresIdentityToContinue().getValue()) {
                 // there is no formController -- fire MainMenu activity?
                 Timber.w("Starting MainMenuActivity because formController is null/formLoaderTask is null");
                 startActivity(new Intent(this, MainMenuActivity.class));
@@ -2021,6 +1890,9 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
         DialogFragmentUtils.dismissDialog(FormLoadingDialogFragment.class, getSupportFragmentManager());
 
         final FormController formController = task.getFormController();
+        Instance instance = task.getInstance();
+        Form form = task.getForm();
+        String formPath = form.getFormFilePath();
 
         if (formController != null) {
             formLoaderTask.setFormLoaderListener(null);
@@ -2033,8 +1905,6 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
             String[] languageTest = formController.getLanguages();
             if (languageTest != null) {
                 String defaultLanguage = formController.getLanguage();
-                Form form = formsRepository.getOneByPath(formPath);
-
                 if (form != null) {
                     String newLanguage = form.getLanguage();
 
@@ -2084,7 +1954,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                             registerReceiver(locationProvidersReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
                         }
 
-                        formControllerAvailable(formController);
+                        formControllerAvailable(formController, form, instance);
 
                         // onResume ran before the form was loaded. Let the viewModel know that the activity
                         // is about to be displayed and configured. Do this before the refresh actually
@@ -2118,7 +1988,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                                 FormIndex formIndex = SaveFormIndexTask.loadFormIndexFromFile(formController);
                                 if (formIndex != null) {
                                     formController.jumpToIndex(formIndex);
-                                    formControllerAvailable(formController);
+                                    formControllerAvailable(formController, form, instance);
                                     formEntryViewModel.refresh();
                                     return;
                                 }
@@ -2126,12 +1996,12 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
 
                             boolean pendingActivityResult = task.hasPendingActivityResult();
                             if (pendingActivityResult) {
-                                formControllerAvailable(formController);
-                                formEntryViewModel.refresh();
+                                formControllerAvailable(formController, form, instance);
+                                formEntryViewModel.refreshSync();
                                 onActivityResult(task.getRequestCode(), task.getResultCode(), task.getIntent());
                             } else {
                                 formController.getAuditEventLogger().logEvent(AuditEvent.AuditEventType.HIERARCHY, true, System.currentTimeMillis());
-                                formControllerAvailable(formController);
+                                formControllerAvailable(formController, form, instance);
                                 Intent intent = new Intent(this, FormHierarchyActivity.class);
                                 intent.putExtra(FormHierarchyActivity.EXTRA_SESSION_ID, sessionId);
                                 startActivityForResult(intent, RequestCodes.HIERARCHY_ACTIVITY);
@@ -2139,7 +2009,7 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                         }
                     });
                 } else {
-                    formControllerAvailable(formController);
+                    formControllerAvailable(formController, form, instance);
                     if (ApplicationConstants.FormModes.VIEW_SENT.equalsIgnoreCase(formMode)) {
                         Intent intent = new Intent(this, ViewOnlyFormHierarchyActivity.class);
                         intent.putExtra(FormHierarchyActivity.EXTRA_SESSION_ID, sessionId);
@@ -2203,9 +2073,8 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
             Uri uri = null;
             String path = getAbsoluteInstancePath();
             if (path != null) {
-                Instance instance = new InstancesRepositoryProvider(this).get().getOneByPath(path);
-                if (instance != null) {
-                    uri = InstancesContract.getUri(projectsDataService.getCurrentProject().getUuid(), instance.getDbId());
+                if (formSaveViewModel.getInstance() != null) {
+                    uri = InstancesContract.getUri(projectsDataService.getCurrentProject().getUuid(), formSaveViewModel.getInstance().getDbId());
                 }
             }
 
@@ -2409,14 +2278,9 @@ public class FormFillingActivity extends LocalizedActivity implements AnimationL
                 public void run() {
                     try {
                         updateFieldListQuestions(changedWidget.getFormEntryPrompt().getIndex());
-
-                        odkView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                            @Override
-                            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                                if (!odkView.isDisplayed(changedWidget)) {
-                                    odkView.scrollToTopOf(changedWidget);
-                                }
-                                odkView.removeOnLayoutChangeListener(this);
+                        odkView.post(() -> {
+                            if (odkView != null && !odkView.isDisplayed(changedWidget)) {
+                                odkView.scrollToTopOf(changedWidget);
                             }
                         });
                     } catch (RepeatsInFieldListException e) {

@@ -184,7 +184,7 @@ public class FormEntryPage extends Page<FormEntryPage> {
     }
 
     public FormEntryPage clickRankingButton() {
-        onView(withId(R.id.simple_button)).perform(click());
+        onView(withId(R.id.rank_items_button)).perform(click());
         return this;
     }
 
@@ -296,6 +296,12 @@ public class FormEntryPage extends Page<FormEntryPage> {
         return this;
     }
 
+    public FormEntryPage activateTextQuestion(int index) {
+        onView(withIndex(withClassName(endsWith("EditText")), index)).perform(scrollTo());
+        onView(withIndex(withClassName(endsWith("EditText")), index)).perform(click());
+        return this;
+    }
+
     public FormEntryPage assertQuestion(String text) {
         return assertQuestion(text, false);
     }
@@ -363,7 +369,7 @@ public class FormEntryPage extends Page<FormEntryPage> {
     }
 
     public CancelRecordingDialog clickRecordAudio() {
-        clickOnString(org.odk.collect.strings.R.string.record_audio);
+        clickOnString(org.odk.collect.strings.R.string.record_audio_on);
         return new CancelRecordingDialog(formName);
     }
 

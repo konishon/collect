@@ -25,6 +25,9 @@ object ProjectKeys {
     const val KEY_CARTO_MAP_STYLE = "carto_map_style"
     const val KEY_REFERENCE_LAYER = "reference_layer"
 
+    // basemap download
+    const val KEY_BASEMAP_DOWNLOAD = "map_layer_url"
+
     // form_management_preferences.xml
     const val KEY_FORM_UPDATE_MODE = "form_update_mode"
     const val KEY_PERIODIC_FORM_UPDATES_CHECK = "periodic_form_updates_check"

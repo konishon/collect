@@ -57,6 +57,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 
 import org.hamcrest.Matcher;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -316,10 +317,10 @@ public class FieldListUpdateTest {
 
         intending(not(isInternal())).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
 
-        onView(withId(R.id.capture_image)).perform(click());
+        onView(withId(R.id.capture_button)).perform(click());
 
         onView(withText("Target10-15")).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-        onView(withId(R.id.capture_image)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.capture_button)).check(matches(isCompletelyDisplayed()));
     }
 
     @Test
@@ -389,6 +390,35 @@ public class FieldListUpdateTest {
                 .clickOnText("Strawberries")
                 .assertText("Target15")
                 .assertSelectMinimalDialogAnswer("Strawberries");
+    }
+
+    @Test
+    @Ignore("https://github.com/getodk/collect/issues/5996")
+    public void listOfQuestionsShouldNotBeScrolledToTheLastEditedQuestionAfterClickingOnAQuestion() {
+        new FormEntryPage("fieldlist-updates")
+                .clickGoToArrow()
+                .clickGoUpIcon()
+                .clickOnGroup("Long list of questions")
+                .clickOnQuestion("Question1")
+                .answerQuestion(0, "X")
+                .activateTextQuestion(19)
+                .checkIsTranslationDisplayed("Question20");
+    }
+
+    @Test
+    public void recordingAudio_ShouldChangeRelevanceOfRelatedField() {
+        new FormEntryPage("fieldlist-updates")
+                .clickGoToArrow()
+                .clickGoUpIcon()
+                .clickOnGroup("Audio")
+                .clickOnQuestion("Source16")
+                .assertTextDoesNotExist("Target16")
+                .clickOnString(org.odk.collect.strings.R.string.capture_audio)
+                .clickOnContentDescription(org.odk.collect.strings.R.string.stop_recording)
+                .checkIsTranslationDisplayed("Target16")
+                .clickOnString(org.odk.collect.strings.R.string.delete_answer_file)
+                .clickOnButtonInDialog(org.odk.collect.strings.R.string.delete_answer_file, new FormEntryPage("fieldlist-updates"))
+                .assertTextDoesNotExist("Target16");
     }
 
     // Scroll down until the desired group name is visible. This is needed to make the tests work

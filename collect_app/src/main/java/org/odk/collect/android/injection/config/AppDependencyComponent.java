@@ -9,11 +9,9 @@ import org.odk.collect.android.activities.DeleteSavedFormActivity;
 import org.odk.collect.android.activities.FirstLaunchActivity;
 import org.odk.collect.android.activities.FormDownloadListActivity;
 import org.odk.collect.android.activities.FormFillingActivity;
-import org.odk.collect.android.activities.FormHierarchyActivity;
+import org.odk.collect.android.formhierarchy.FormHierarchyActivity;
 import org.odk.collect.android.activities.FormMapActivity;
 import org.odk.collect.android.activities.InstanceChooserList;
-import org.odk.collect.android.instancemanagement.send.InstanceUploaderActivity;
-import org.odk.collect.android.instancemanagement.send.InstanceUploaderListActivity;
 import org.odk.collect.android.adapters.InstanceUploaderAdapter;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.application.initialization.ApplicationInitializer;
@@ -26,8 +24,9 @@ import org.odk.collect.android.backgroundwork.SyncFormsTaskSpec;
 import org.odk.collect.android.configure.qr.QRCodeScannerFragment;
 import org.odk.collect.android.configure.qr.QRCodeTabsActivity;
 import org.odk.collect.android.configure.qr.ShowQRCodeFragment;
-import org.odk.collect.android.draw.DrawActivity;
-import org.odk.collect.android.draw.PenColorPickerDialog;
+import org.odk.collect.android.instancemanagement.send.InstanceUploaderActivity;
+import org.odk.collect.android.instancemanagement.send.InstanceUploaderListActivity;
+import org.odk.collect.draw.DrawActivity;
 import org.odk.collect.android.entities.EntitiesRepositoryProvider;
 import org.odk.collect.android.external.AndroidShortcutsActivity;
 import org.odk.collect.android.external.FormUriActivity;
@@ -46,7 +45,6 @@ import org.odk.collect.android.fragments.BarCodeScannerFragment;
 import org.odk.collect.android.fragments.SavedFormListFragment;
 import org.odk.collect.android.fragments.dialogs.FormsDownloadResultDialog;
 import org.odk.collect.android.fragments.dialogs.SelectMinimalDialog;
-import org.odk.collect.googlemaps.GoogleMapFragment;
 import org.odk.collect.android.mainmenu.MainMenuActivity;
 import org.odk.collect.android.openrosa.OpenRosaHttpInterface;
 import org.odk.collect.android.preferences.CaptionedListPreference;
@@ -68,9 +66,9 @@ import org.odk.collect.android.preferences.screens.ProjectPreferencesActivity;
 import org.odk.collect.android.preferences.screens.ProjectPreferencesFragment;
 import org.odk.collect.android.preferences.screens.ServerPreferencesFragment;
 import org.odk.collect.android.preferences.screens.UserInterfacePreferencesFragment;
-import org.odk.collect.android.projects.ProjectsDataService;
 import org.odk.collect.android.projects.ManualProjectCreatorDialog;
 import org.odk.collect.android.projects.ProjectSettingsDialog;
+import org.odk.collect.android.projects.ProjectsDataService;
 import org.odk.collect.android.projects.QrCodeProjectCreatorDialog;
 import org.odk.collect.android.storage.StoragePathProvider;
 import org.odk.collect.android.tasks.DownloadFormListTask;
@@ -82,11 +80,11 @@ import org.odk.collect.android.utilities.FormsRepositoryProvider;
 import org.odk.collect.android.utilities.InstancesRepositoryProvider;
 import org.odk.collect.android.utilities.ProjectResetter;
 import org.odk.collect.android.utilities.ThemeUtils;
-import org.odk.collect.android.widgets.ExStringWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.items.SelectOneFromMapDialogFragment;
 import org.odk.collect.androidshared.network.NetworkStateProvider;
 import org.odk.collect.async.Scheduler;
+import org.odk.collect.googlemaps.GoogleMapFragment;
 import org.odk.collect.location.LocationClient;
 import org.odk.collect.maps.MapFragmentFactory;
 import org.odk.collect.maps.layers.ReferenceLayerRepository;
@@ -162,8 +160,6 @@ public interface AppDependencyComponent {
     void inject(InstanceUploaderListActivity activity);
 
     void inject(QuestionWidget questionWidget);
-
-    void inject(ExStringWidget exStringWidget);
 
     void inject(ODKView odkView);
 
@@ -269,8 +265,6 @@ public interface AppDependencyComponent {
 
     void inject(DrawActivity drawActivity);
 
-    void inject(PenColorPickerDialog colorPickerDialog);
-
     void inject(BlankFormListActivity blankFormListActivity);
 
     void inject(DeleteRepeatDialogFragment deleteRepeatDialogFragment);
@@ -280,6 +274,7 @@ public interface AppDependencyComponent {
     void inject(DownloadFormListTask downloadFormListTask);
 
     OpenRosaHttpInterface openRosaHttpInterface();
+
 
     ReferenceManager referenceManager();
 
@@ -300,6 +295,7 @@ public interface AppDependencyComponent {
     InstancesRepositoryProvider instancesRepositoryProvider();
 
     FormSourceProvider formSourceProvider();
+
 
     ExistingProjectMigrator existingProjectMigrator();
 

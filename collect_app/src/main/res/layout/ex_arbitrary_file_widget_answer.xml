@@ -2,13 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/margin_small"
-    android:paddingHorizontal="@dimen/margin_standard">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/ex_arbitrary_file_button"
-        style="?materialButtonStyle"
+        style="?widgetButtonQuestionWidgetStyle"
         android:text="@string/launch_app"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

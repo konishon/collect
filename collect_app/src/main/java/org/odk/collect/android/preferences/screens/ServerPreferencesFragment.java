@@ -17,6 +17,7 @@
 package org.odk.collect.android.preferences.screens;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputFilter;
 
@@ -91,6 +92,7 @@ public class ServerPreferencesFragment extends BaseProjectPreferencesFragment {
                     } else {
                         ToastUtils.showShortToast(requireContext(), org.odk.collect.strings.R.string.url_error);
                         return false;
+
                     }
                     break;
 

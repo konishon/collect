@@ -8,7 +8,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorSecondary">@color/colorPrimary</item>
-        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="android:colorBackground">@color/colorSurface</item>
         <item name="colorError">@color/colorError</item>
 
         <!-- MaterialComponents attributes (needed if parent="Theme.AppCompat"). -->
@@ -17,7 +17,7 @@
         <item name="colorSurface">@color/colorSurface</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="colorOnSecondary">@color/colorOnPrimary</item>
-        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="colorOnBackground">@color/colorOnSurface</item>
         <!--
             colorOnError should refer to @color/colorOnError
             This is a temporary fix and we can get rid of it when setting cursor error color is possible https://github.com/material-components/material-components-android/issues/3345
@@ -72,7 +72,7 @@
         </item>
         <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Material3.HeadlineSmall
         </item>
-        <item name="textAppearanceTitleLarge">@style/TextAppearance.Material3.TitleLarge</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Collect.TitleLarge</item>
         <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
         <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
         <item name="textAppearanceBodyLarge">?textAppearanceBody1</item>
@@ -87,16 +87,23 @@
         </item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Material3.LargeComponent
         </item>
+        <item name="elevationOverlayEnabled">true</item>
 
         <!-- Material3 polyfill attributes (needed in Material Components yet). -->
         <item name="materialButtonIconStyle">@style/Widget.Collect.Button.Icon</item>
         <item name="materialButtonOutlinedIconStyle">@style/Widget.Collect.Button.OutlinedButton.Icon</item>
         <item name="materialIconButtonOutlinedStyle">@style/Widget.Collect.Button.IconButton.Outlined</item>
         <item name="borderlessButtonIconStyle">@style/Widget.Collect.Button.TextButton.Icon</item>
+        <item name="materialButtonStyle">@style/Widget.Collect.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.Collect.Button.OutlinedButton</item>
+        <item name="borderlessButtonStyle">@style/Widget.Collect.Button.TextButton</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Collect.Dialog.Alert</item>
+
+        <!-- Custom style for buttons used in question widgets -->
+        <item name="widgetButtonQuestionWidgetStyle">@style/Widget.Collect.Button.QuestionWidget</item>
 
         <!-- Custom theme text appearance for larger buttons -->
-        <item name="textAppearanceLabelExtraLarge">@style/TextAppearance.Collect.LabelExtraLarge
-        </item>
+        <item name="textAppearanceLabelExtraLarge">@style/TextAppearance.Collect.LabelExtraLarge</item>
 
         <!-- Needed to make scrollbars always visible -->
         <item name="android:scrollbars">vertical</item>
@@ -116,12 +123,6 @@
 
         <!-- Use locale for text direction in views -->
         <item name="android:textDirection">locale</item>
-
-
-        <item name="materialButtonStyle">@style/Widget.Collect.Button</item>
-        <item name="materialButtonOutlinedStyle">@style/Widget.Collect.Button.OutlinedButton</item>
-        <item name="borderlessButtonStyle">@style/Widget.Collect.Button.TextButton</item>
-        <item name="materialAlertDialogTheme">@style/Theme.Collect.Dialog.Alert</item>
 
         <!-- Sets up theme correction for anything using `AlertDialog.Builder` -->
         <item name="alertDialogTheme">@style/Theme.Collect.Dialog.Alert</item>

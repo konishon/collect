@@ -1,5 +1,15 @@
 package org.odk.collect.android.widgets;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.when;
+import static org.odk.collect.android.support.CollectHelpers.setupFakeReferenceManager;
+import static org.robolectric.Shadows.shadowOf;
+import static java.util.Collections.singletonList;
+
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,7 +26,6 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.reference.ReferenceManager;
 import org.junit.Test;
 import org.odk.collect.android.R;
-import org.odk.collect.android.draw.DrawActivity;
 import org.odk.collect.android.formentry.questions.QuestionDetails;
 import org.odk.collect.android.injection.config.AppDependencyModule;
 import org.odk.collect.android.support.CollectHelpers;
@@ -26,21 +35,12 @@ import org.odk.collect.android.widgets.base.FileWidgetTest;
 import org.odk.collect.android.widgets.support.FakeQuestionMediaManager;
 import org.odk.collect.android.widgets.support.FakeWaitingForDataRegistry;
 import org.odk.collect.android.widgets.support.SynchronousImageLoader;
+import org.odk.collect.draw.DrawActivity;
 import org.odk.collect.imageloader.ImageLoader;
 import org.odk.collect.shared.TempFiles;
 
 import java.io.File;
 import java.io.IOException;
-
-import static java.util.Collections.singletonList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.when;
-import static org.odk.collect.android.support.CollectHelpers.setupFakeReferenceManager;
-import static org.robolectric.Shadows.shadowOf;
 
 /**
  *  @author James Knight
@@ -78,7 +78,7 @@ public class SignatureWidgetTest extends FileWidgetTest<SignatureWidget> {
     public void usingReadOnlyOptionShouldMakeAllClickableElementsDisabled() {
         when(formEntryPrompt.isReadOnly()).thenReturn(true);
 
-        assertThat(getSpyWidget().signButton.getVisibility(), is(View.GONE));
+        assertThat(getSpyWidget().binding.signButton.getVisibility(), is(View.GONE));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class SignatureWidgetTest extends FileWidgetTest<SignatureWidget> {
         readOnlyOverride = true;
         when(formEntryPrompt.isReadOnly()).thenReturn(false);
 
-        assertThat(getSpyWidget().signButton.getVisibility(), is(View.GONE));
+        assertThat(getSpyWidget().binding.signButton.getVisibility(), is(View.GONE));
     }
 
     @Test
@@ -206,7 +206,7 @@ public class SignatureWidgetTest extends FileWidgetTest<SignatureWidget> {
                 .withAnswerDisplayText(DrawWidgetTest.DEFAULT_IMAGE_ANSWER)
                 .build();
 
-        Intent intent = getIntentLaunchedByClick(R.id.simple_button);
+        Intent intent = getIntentLaunchedByClick(R.id.sign_button);
         assertComponentEquals(activity, DrawActivity.class, intent);
         assertExtraEquals(DrawActivity.OPTION, DrawActivity.OPTION_SIGNATURE, intent);
         assertExtraEquals(DrawActivity.REF_IMAGE, Uri.fromFile(file), intent);
@@ -228,7 +228,7 @@ public class SignatureWidgetTest extends FileWidgetTest<SignatureWidget> {
                 .withAnswerDisplayText(DrawWidgetTest.DEFAULT_IMAGE_ANSWER)
                 .build();
 
-        Intent intent = getIntentLaunchedByClick(R.id.simple_button);
+        Intent intent = getIntentLaunchedByClick(R.id.sign_button);
         assertComponentEquals(activity, DrawActivity.class, intent);
         assertExtraEquals(DrawActivity.OPTION, DrawActivity.OPTION_SIGNATURE, intent);
         assertThat(intent.hasExtra(DrawActivity.REF_IMAGE), is(false));
@@ -236,7 +236,7 @@ public class SignatureWidgetTest extends FileWidgetTest<SignatureWidget> {
 
     @Test
     public void whenThereIsNoAnswer_doNotPassUriToDrawActivity() {
-        Intent intent = getIntentLaunchedByClick(R.id.simple_button);
+        Intent intent = getIntentLaunchedByClick(R.id.sign_button);
         assertComponentEquals(activity, DrawActivity.class, intent);
         assertExtraEquals(DrawActivity.OPTION, DrawActivity.OPTION_SIGNATURE, intent);
         assertThat(intent.hasExtra(DrawActivity.REF_IMAGE), is(false));

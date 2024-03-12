@@ -40,7 +40,6 @@ import org.odk.collect.android.configure.qr.AppConfigurationGenerator;
 import org.odk.collect.android.configure.qr.CachingQRCodeGenerator;
 import org.odk.collect.android.configure.qr.QRCodeGenerator;
 import org.odk.collect.android.database.itemsets.DatabaseFastExternalItemsetsRepository;
-import org.odk.collect.android.draw.PenColorPickerViewModel;
 import org.odk.collect.android.entities.EntitiesRepositoryProvider;
 import org.odk.collect.android.external.InstancesContract;
 import org.odk.collect.android.formentry.AppStateFormSessionRepository;
@@ -57,6 +56,7 @@ import org.odk.collect.android.formmanagement.InstancesDataService;
 import org.odk.collect.android.formmanagement.ServerFormDownloader;
 import org.odk.collect.android.formmanagement.ServerFormsDetailsFetcher;
 import org.odk.collect.android.geo.MapFragmentFactoryImpl;
+import org.odk.collect.android.geo.MapLayerSourceProvider;
 import org.odk.collect.android.instancemanagement.autosend.AutoSendSettingsProvider;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSendFetcher;
 import org.odk.collect.android.instancemanagement.autosend.InstanceAutoSender;
@@ -126,8 +126,8 @@ import org.odk.collect.permissions.PermissionsProvider;
 import org.odk.collect.projects.ProjectsRepository;
 import org.odk.collect.projects.SharedPreferencesProjectsRepository;
 import org.odk.collect.qrcode.QRCodeDecoder;
+import org.odk.collect.qrcode.QRCodeCreatorImpl;
 import org.odk.collect.qrcode.QRCodeDecoderImpl;
-import org.odk.collect.qrcode.QRCodeEncoderImpl;
 import org.odk.collect.settings.ODKAppSettingsImporter;
 import org.odk.collect.settings.ODKAppSettingsMigrator;
 import org.odk.collect.settings.SettingsProvider;
@@ -265,8 +265,8 @@ public class AppDependencyModule {
     }
 
     @Provides
-    public QRCodeGenerator providesQRCodeGenerator(Context context) {
-        return new CachingQRCodeGenerator(new QRCodeEncoderImpl());
+    public QRCodeGenerator providesQRCodeGenerator() {
+        return new CachingQRCodeGenerator(new QRCodeCreatorImpl());
     }
 
     @Provides
@@ -505,6 +505,11 @@ public class AppDependencyModule {
     }
 
     @Provides
+    public MapLayerSourceProvider providesMapLayerSourceProvider(SettingsProvider settingsProvider,OpenRosaHttpInterface mbTilesHttpInterface) {
+        return new MapLayerSourceProvider(settingsProvider,mbTilesHttpInterface);
+    }
+
+    @Provides
     public FormsDataService providesFormsUpdater(Application application, Notifier notifier, ProjectDependencyProviderFactory projectDependencyProviderFactory) {
         return new FormsDataService(getState(application), notifier, projectDependencyProviderFactory, System::currentTimeMillis);
     }
@@ -614,11 +619,6 @@ public class AppDependencyModule {
     @Provides
     public ImageLoader providesImageLoader() {
         return new GlideImageLoader();
-    }
-
-    @Provides
-    public PenColorPickerViewModel.Factory providesPenColorPickerViewModel(SettingsProvider settingsProvider) {
-        return new PenColorPickerViewModel.Factory(settingsProvider.getMetaSettings());
     }
 
     @Provides

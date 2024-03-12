@@ -17,22 +17,29 @@ import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import org.odk.collect.android.R
+import org.odk.collect.android.geo.FileDownloader
 import org.odk.collect.android.geo.MapConfiguratorProvider
+import org.odk.collect.android.geo.MapLayerSourceProvider
 import org.odk.collect.android.injection.DaggerUtils
 import org.odk.collect.android.preferences.CaptionedListPreference
 import org.odk.collect.android.preferences.dialogs.ReferenceLayerPreferenceDialog
 import org.odk.collect.android.preferences.screens.ReferenceLayerPreferenceUtils.populateReferenceLayerPref
 import org.odk.collect.androidshared.ui.PrefUtils
+import org.odk.collect.androidshared.ui.ToastUtils
 import org.odk.collect.androidshared.ui.multiclicksafe.MultiClickGuard.allowClick
+import org.odk.collect.androidshared.utils.Validator.isUrlValid
 import org.odk.collect.maps.MapConfigurator
 import org.odk.collect.maps.layers.ReferenceLayerRepository
+import org.odk.collect.settings.keys.ProjectKeys
 import org.odk.collect.settings.keys.ProjectKeys.CATEGORY_BASEMAP
 import org.odk.collect.settings.keys.ProjectKeys.KEY_BASEMAP_SOURCE
 import java.io.File
+import java.net.URL
 import javax.inject.Inject
 
 class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
@@ -45,6 +52,9 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
     @Inject
     lateinit var referenceLayerRepository: ReferenceLayerRepository
 
+    @Inject
+    lateinit var mapLayerSourceProvider: MapLayerSourceProvider
+
     override fun onDisplayPreferenceDialog(preference: Preference) {
         if (allowClick(javaClass.name)) {
             var dialogFragment: DialogFragment? = null
@@ -56,8 +66,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
             if (dialogFragment != null) {
                 dialogFragment.setTargetFragment(this, 0)
                 dialogFragment.show(
-                    parentFragmentManager,
-                    ReferenceLayerPreferenceDialog::class.java.name
+                    parentFragmentManager, ReferenceLayerPreferenceDialog::class.java.name
                 )
             }
         }
@@ -85,7 +94,9 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
         if (referenceLayerPref != null) {
-            populateReferenceLayerPref(requireContext(), referenceLayerRepository, referenceLayerPref!!)
+            populateReferenceLayerPref(
+                requireContext(), referenceLayerRepository, referenceLayerPref!!
+            )
         }
     }
 
@@ -120,6 +131,50 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
                 true
             }
         }
+        val baseMapDownloadPreference =
+            findPreference<EditTextPreference>(ProjectKeys.KEY_BASEMAP_DOWNLOAD)
+        baseMapDownloadPreference?.summary = baseMapDownloadPreference?.text
+        baseMapDownloadPreference!!.setOnPreferenceChangeListener { _: Preference?, value: Any ->
+            val url = value.toString()
+            if (isUrlValid(url)) {
+               //AsyncTask.execute { mapLayerSourceProvider.get(serverURL = url).fetch() }
+                val fileName = getFileNameFromUrl(url)
+                baseMapDownloadPreference.summary = "Downloading layers.."
+
+                val fileDownloader = FileDownloader { success ->
+                    // Handle the file download completion
+                    if (success) {
+                        // File downloaded successfully
+                        // Update UI or perform any necessary operations
+                        baseMapDownloadPreference.summary = "Downloaded $fileName to layers folder"
+
+                    } else {
+                        baseMapDownloadPreference.summary = "Failed to download $fileName to layers folder"
+
+                        // File download failed
+                        // Display an error message or retry download if needed
+                    }
+
+                }
+                fileDownloader.execute(url, fileName);
+                true
+            } else {
+                ToastUtils.showShortToast(requireContext(), org.odk.collect.strings.R.string.url_error)
+                false
+            }
+        }
+    }
+
+    fun getFileNameFromUrl(url: String?): String? {
+        var fileName = ""
+        try {
+            val fileUrl = URL(url)
+            val path = fileUrl.path
+            fileName = path.substring(path.lastIndexOf('/') + 1)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return fileName
     }
 
     /** Updates the rest of the preference UI when the Basemap Source is changed.  */
@@ -148,7 +203,9 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
         referenceLayerPref = findPreference("reference_layer")
         referenceLayerPref!!.onPreferenceClickListener =
             Preference.OnPreferenceClickListener { preference: Preference? ->
-                populateReferenceLayerPref(requireContext(), referenceLayerRepository, referenceLayerPref!!)
+                populateReferenceLayerPref(
+                    requireContext(), referenceLayerRepository, referenceLayerPref!!
+                )
                 false
             }
         if (referenceLayerPref!!.value == null || referenceLayerRepository.get(
@@ -204,10 +261,7 @@ class MapsPreferencesFragment : BaseProjectPreferencesFragment() {
             // attached, then instantiate it and attach it.
             val prefs = MapsPreferencesFragment()
             prefs.autoShowReferenceLayerDialog = true // makes dialog open immediately
-            activity.supportFragmentManager
-                .beginTransaction()
-                .add(prefs, null)
-                .commit()
+            activity.supportFragmentManager.beginTransaction().add(prefs, null).commit()
         }
     }
 }

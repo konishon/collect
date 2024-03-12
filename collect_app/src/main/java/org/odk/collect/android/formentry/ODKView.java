@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
+import org.odk.collect.android.activities.FormFillingActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.audio.AudioHelper;
 import org.odk.collect.android.exception.ExternalParamsException;
@@ -65,8 +67,6 @@ import org.odk.collect.android.utilities.ContentUriHelper;
 import org.odk.collect.android.utilities.ExternalAppIntentProvider;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.HtmlUtils;
-import org.odk.collect.android.widgets.utilities.QuestionFontSizeUtils;
-import org.odk.collect.android.widgets.utilities.QuestionFontSizeUtils.FontSize;
 import org.odk.collect.android.utilities.QuestionMediaManager;
 import org.odk.collect.android.utilities.ScreenContext;
 import org.odk.collect.android.utilities.ThemeUtils;
@@ -78,6 +78,7 @@ import org.odk.collect.android.widgets.utilities.AudioPlayer;
 import org.odk.collect.android.widgets.utilities.ExternalAppRecordingRequester;
 import org.odk.collect.android.widgets.utilities.FileRequesterImpl;
 import org.odk.collect.android.widgets.utilities.InternalRecordingRequester;
+import org.odk.collect.android.widgets.utilities.QuestionFontSizeUtils;
 import org.odk.collect.android.widgets.utilities.RecordingRequesterProvider;
 import org.odk.collect.android.widgets.utilities.StringRequesterImpl;
 import org.odk.collect.android.widgets.utilities.WaitingForDataRegistry;
@@ -140,7 +141,21 @@ public class ODKView extends SwipeHandler.View implements OnLongClickListener, W
      * @param groups          the group hierarchy that this question or field list is in
      * @param advancingPage   whether this view is being created after a forward swipe through the
      */
-    public ODKView(ComponentActivity context, final FormEntryPrompt[] questionPrompts, FormEntryCaption[] groups, boolean advancingPage, QuestionMediaManager questionMediaManager, WaitingForDataRegistry waitingForDataRegistry, AudioPlayer audioPlayer, AudioRecorder audioRecorder, FormEntryViewModel formEntryViewModel, InternalRecordingRequester internalRecordingRequester, ExternalAppRecordingRequester externalAppRecordingRequester, AudioHelper audioHelper) {
+    public ODKView(
+            ComponentActivity context,
+            final FormEntryPrompt[] questionPrompts,
+            FormEntryCaption[] groups,
+            boolean advancingPage,
+            QuestionMediaManager questionMediaManager,
+            WaitingForDataRegistry waitingForDataRegistry,
+            AudioPlayer audioPlayer,
+            AudioRecorder audioRecorder,
+            FormEntryViewModel formEntryViewModel,
+            PrinterWidgetViewModel printerWidgetViewModel,
+            InternalRecordingRequester internalRecordingRequester,
+            ExternalAppRecordingRequester externalAppRecordingRequester,
+            AudioHelper audioHelper
+    ) {
         super(context);
         viewLifecycle = ((ScreenContext) context).getViewLifecycle();
 
@@ -176,11 +191,13 @@ public class ODKView extends SwipeHandler.View implements OnLongClickListener, W
                         externalAppRecordingRequester
                 ),
                 formEntryViewModel,
+                printerWidgetViewModel,
                 audioRecorder,
                 viewLifecycle,
                 new FileRequesterImpl(intentLauncher, externalAppIntentProvider, formController),
                 new StringRequesterImpl(intentLauncher, externalAppIntentProvider, formController),
-                formController
+                formController,
+                (FormFillingActivity) context
         );
 
         widgets = new ArrayList<>();
@@ -308,6 +325,14 @@ public class ODKView extends SwipeHandler.View implements OnLongClickListener, W
         divider.setBackgroundResource(new ThemeUtils(getContext()).getDivider());
         divider.setMinimumHeight(3);
 
+        ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        );
+        int marginVertical = (int) getContext().getResources().getDimension(org.odk.collect.androidshared.R.dimen.margin_extra_small);
+        params.setMargins(0, marginVertical, 0, marginVertical);
+        divider.setLayoutParams(params);
+
         return divider;
     }
 
@@ -338,7 +363,7 @@ public class ODKView extends SwipeHandler.View implements OnLongClickListener, W
             TextView tv = findViewById(R.id.group_text);
             tv.setText(path);
 
-            int fontSize = QuestionFontSizeUtils.getFontSize(settingsProvider.getUnprotectedSettings(), FontSize.SUBTITLE_1);
+            int fontSize = QuestionFontSizeUtils.getFontSize(settingsProvider.getUnprotectedSettings(), QuestionFontSizeUtils.FontSize.SUBTITLE_1);
             tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
 
             tv.setVisibility(VISIBLE);

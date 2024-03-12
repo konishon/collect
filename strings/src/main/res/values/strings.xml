@@ -144,9 +144,10 @@
     <string name="survey_internal_error">Internal error: step to prompt failed.</string>
 
     <string name="save_enter_data_description">You are at the end of %s.</string>
-    <string name="form_edits_warning_only_finalize_enabled">You will not be able to make edits once you finalize.</string>
-    <string name="form_edits_warning_save_as_draft_and_finalize_enabled">You will not be able to make edits once you finalize. If you need to make changes, \"Save as draft\" until you\'re ready to send.</string>
-    <string name="form_edits_warning_save_as_draft_and_finalize_with_auto_send_enabled">You will not be able to make edits once you send. If you need to make changes, \"Save as draft\" until you\'re ready to send.</string>
+    <string name="form_edits_warning_title">Finalized forms are not editable.</string>
+    <string name="form_edits_warning_title_auto_send_enabled">Sent forms are not editable.</string>
+    <string name="form_edits_warning_message">If you need to make edits to your form, \"Save as draft\" until you\'re ready to send.</string>
+    <string name="form_edits_warning_learn_more">Learn more</string>
     <string name="save_as_draft">Save as draft</string>
     <string name="finalize">Finalize</string>
     <string name="send">Send</string>
@@ -216,7 +217,8 @@
     <string name="activity_not_found">No activity found to handle: %s</string>
     <string name="no_app">The requested application is missing. Please manually enter the reading.</string>
     <string name="null_intent_value">The external application did not provide expected information.</string>
-
+    <!-- Text on button that is part of print questions. Tapping the button prints the value of the question. -->
+    <string name="print">Print</string>
     <string name="launch_printer">Initiate Printing</string>
     <string name="no_printer">The requested printer is not installed. Please install the printer.</string>
 
@@ -282,8 +284,11 @@
     <!-- Description text for button that that resumes recording sound -->
     <string name="resume_recording">Resume</string>
 
-    <!-- Text next to checkbox to allow the user to toggle audio recording on and off -->
-    <string name="record_audio">Record audio</string>
+    <!-- Displayed in the form filling menu when a form has background audio recording enabled -->
+    <string name="record_audio_on">Record audio: on</string>
+
+    <!-- Displayed in the form filling menu when a form has background audio recording disabled -->
+    <string name="record_audio_off">Record audio: off</string>
 
     <string name="background_audio_permission_explanation">This form records audio in the background. You must grant permission to use your microphone. If you do not, you will not be able to open this form.</string>
 
@@ -489,8 +494,10 @@
     <string name="location_providers_disabled_dialog_message">This form wants to track your location but location providers are disabled. Please enable in Android settings.</string>
     <!-- Action to go to Android settings. Displayed when location providers are disabled. -->
     <string name="go_to_settings">Go to settings</string>
-    <!-- Label for a menu item that can be toggled to turn background location tracking on and off during form filling -->
-    <string name="track_location">Track location</string>
+    <!-- Displayed in the form filling menu when a form has background location enabled -->
+    <string name="track_location_on">Track location: on</string>
+    <!-- Displayed in the form filling menu when a form has background location disabled -->
+    <string name="track_location_off">Track location: off</string>
     <string name="background_location_disabled">This form wants to track your location but tracking is disabled. Please enable in the %1$s menu above.</string>
     <string name="background_location_enabled">This form tracks your location. You can disable tracking in the %1$s menu above.</string>
 
@@ -1241,18 +1248,22 @@
 
     <!-- Message displayed when the list of blank forms is empty -->
     <string name="empty_list_of_blank_forms_title">No blank forms</string>
+    <!-- Subtext displayed when the list of blank forms is empty -->
     <string name="empty_list_of_blank_forms_subtitle">Download form to get started</string>
 
     <!-- Message displayed when the list of drafts is empty -->
     <string name="empty_list_of_drafts_title">Nothing in drafts</string>
+    <!-- Subtext displayed when the list of drafts is empty -->
     <string name="empty_list_of_drafts_subtitle">When you save as draft, forms will appear here</string>
 
     <!-- Message displayed when the list of ready to send forms is empty -->
     <string name="empty_list_of_finalized_forms_title">Nothing ready to send</string>
+    <!-- Subtext displayed when the list of ready to send forms is empty -->
     <string name="empty_list_of_finalized_forms_subtitle">When you finalize drafts, they will appear here</string>
 
     <!-- Message displayed when the list of sent forms is empty -->
     <string name="empty_list_of_sent_forms_title">Nothing in sent</string>
+    <!-- Subtext of message displayed when the list of sent forms is empty -->
     <string name="empty_list_of_sent_forms_subtitle">When you send finalized forms, they will appear here</string>
 
     <!-- Message displayed when the list of forms to download is empty -->
@@ -1261,6 +1272,8 @@
 
     <!-- Message displayed when the list of forms to delete is empty -->
     <string name="empty_list_of_forms_to_delete_title">No forms to delete</string>
-    <string name="empty_list_of_blank_forms_to_delete_subtitle">When you have downloaded blank forms they will appear here</string>
-    <string name="empty_list_of_saved_forms_to_delete_subtitle">Once you have saved forms they will appear here</string>
+    <!-- Subtext displayed when the list of blank forms to delete is empty -->
+    <string name="empty_list_of_blank_forms_to_delete_subtitle">When you have downloaded blank forms, they will appear here</string>
+    <!-- Subtext displayed when the list of filled forms to delete is empty -->
+    <string name="empty_list_of_saved_forms_to_delete_subtitle">When you have saved forms, they will appear here</string>
 </resources>

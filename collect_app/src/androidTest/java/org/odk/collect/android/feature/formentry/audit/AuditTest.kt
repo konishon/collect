@@ -60,9 +60,9 @@ class AuditTest {
     }
 
     @Test // https://github.com/getodk/collect/issues/5551
-    fun navigatingToSettings_savesAnswersFormCurrentScreenToAuditLog() {
+    fun navigatingToSettings_savesAnswersFromCurrentScreenToAuditLog() {
         rule.startAtMainMenu()
-            .copyForm("one-question-audit-track-changes.xml")
+            .copyForm("two-question-audit-track-changes.xml")
             .startBlankForm("One Question Audit Track Changes")
             .fillOut(FormEntryPage.QuestionAndAnswer("What is your age", "31"))
             .clickOptionsIcon()
@@ -71,6 +71,22 @@ class AuditTest {
         val auditLog = StorageUtils.getAuditLogForFirstInstance()
         assertThat(auditLog[1].get("event"), equalTo("question"))
         assertThat(auditLog[1].get("new-value"), equalTo("31"))
+    }
+
+    @Test // https://github.com/getodk/collect/issues/5900
+    fun navigatingToNextQuestion_savesAnswersFromCurrentScreenToAuditLog() {
+        rule.startAtMainMenu()
+            .copyForm("two-question-audit-track-changes.xml")
+            .startBlankForm("One Question Audit Track Changes")
+            .fillOut(FormEntryPage.QuestionAndAnswer("What is your age", "31"))
+            .swipeToNextQuestion("What is your name?")
+            .fillOut(FormEntryPage.QuestionAndAnswer("What is your name?", "Adam"))
+            .swipeToEndScreen()
+
+        val auditLog = StorageUtils.getAuditLogForFirstInstance()
+        assertThat(auditLog[1].get("event"), equalTo("question"))
+        assertThat(auditLog[1].get("new-value"), equalTo("31"))
+        assertThat(auditLog[2].get("new-value"), equalTo("Adam"))
     }
 
     @Test // https://github.com/getodk/collect/issues/5253
@@ -88,7 +104,7 @@ class AuditTest {
             .pressBack(MainMenuPage())
             .startBlankForm("One Question Audit")
             .fillOut(FormEntryPage.QuestionAndAnswer("what is your age", "31"))
-            .killAndReopenApp(MainMenuPage())
+            .killAndReopenApp(rule, MainMenuPage())
             .startBlankForm("One Question Audit")
             .swipeToEndScreen()
             .clickFinalize()
@@ -145,5 +161,48 @@ class AuditTest {
         assertThat(auditLog[12].get("event"), equalTo("question"))
         assertThat(auditLog[13].get("event"), equalTo("form save"))
         assertThat(auditLog[14].get("event"), equalTo("form exit"))
+    }
+
+    @Test // https://github.com/getodk/collect/issues/5915
+    fun changingTheAnswerAfterSavingAFormOnTheSamePage_shouldLogTheNewAnswer() {
+        rule.startAtMainMenu()
+            .copyForm("two-question-audit-track-changes.xml")
+            .startBlankForm("One Question Audit Track Changes")
+            .clickSave()
+            .fillOut(FormEntryPage.QuestionAndAnswer("What is your age?", "31"))
+            .swipeToNextQuestion("What is your name?")
+            .clickSave()
+            .fillOut(FormEntryPage.QuestionAndAnswer("What is your name?", "Adam"))
+            .swipeToEndScreen()
+            .clickSaveAsDraft()
+
+        val auditLog = StorageUtils.getAuditLogForFirstInstance()
+        assertThat(auditLog.size, equalTo(10))
+
+        assertThat(auditLog[0].get("event"), equalTo("form start"))
+
+        assertThat(auditLog[1].get("event"), equalTo("question"))
+        assertThat(auditLog[1].get("node"), equalTo("/data/age"))
+        assertThat(auditLog[1].get("new-value"), equalTo(""))
+
+        assertThat(auditLog[2].get("event"), equalTo("form save"))
+
+        assertThat(auditLog[3].get("event"), equalTo("question"))
+        assertThat(auditLog[3].get("node"), equalTo("/data/age"))
+        assertThat(auditLog[3].get("new-value"), equalTo("31"))
+
+        assertThat(auditLog[4].get("event"), equalTo("question"))
+        assertThat(auditLog[4].get("node"), equalTo("/data/name"))
+        assertThat(auditLog[4].get("new-value"), equalTo(""))
+
+        assertThat(auditLog[5].get("event"), equalTo("form save"))
+
+        assertThat(auditLog[6].get("event"), equalTo("question"))
+        assertThat(auditLog[6].get("node"), equalTo("/data/name"))
+        assertThat(auditLog[6].get("new-value"), equalTo("Adam"))
+
+        assertThat(auditLog[7].get("event"), equalTo("end screen"))
+        assertThat(auditLog[8].get("event"), equalTo("form save"))
+        assertThat(auditLog[9].get("event"), equalTo("form exit"))
     }
 }
